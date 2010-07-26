@@ -1,0 +1,10 @@
+From: <%= from_email_address%>
+To: <%= recepient%>
+Subject: <%= subject%>
+
+De backup is niet gelukt.
+Hieronder vind je de log van de backup:
+
+<%= log %>
+
+

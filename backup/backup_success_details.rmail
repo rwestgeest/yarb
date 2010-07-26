@@ -1,0 +1,13 @@
+From: <%= from_email_address%>
+To: <%= recepient%>
+Subject: <%= subject%>
+
+De backup is gelukt.
+
+Hieronder vind je eventuele acties die ondernomen moeten worden:
+
+<%= actions %>
+
+dit is er gebeurt
+
+<%= log %>

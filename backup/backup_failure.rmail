@@ -1,0 +1,8 @@
+From: <%= from_email_address %>
+To: <%= recepient%>
+Subject: <%= subject%>
+
+De backup is niet gelukt.
+
+Je systeem beheerder is ingelicht met de details.
+
