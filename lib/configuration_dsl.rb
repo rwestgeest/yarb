@@ -1,0 +1,77 @@
+
+class MainDsl
+    def self.configure(backup_configuration, configuration_string=nil, &configuration_block) 
+        dsl = MainDsl.new(backup_configuration)
+        if configuration_string 
+            dsl.instance_eval configuration_string
+        else
+            dsl.instance_eval &configuration_block
+        end
+    end 
+    
+    def initialize(backup_recipe)
+        @backup_recipe = backup_recipe
+    end
+    
+    def backup(&configuration_block)
+        backup = Backup.new
+        BackupDsl.configure(backup, &configuration_block)
+        @backup_recipe.backup = backup
+    end
+    
+    def mail(&configuration_block)
+        mail_config = MailConfiguration.new
+        MailDsl.configure(mail_config, &configuration_block)
+        @backup_recipe.mail_config = mail_config
+    end
+end
+
+require 'archive'
+require 'rotator'
+class BackupDsl
+    def self.configure(backup, &configuration_block)
+        self.new(backup).instance_eval(&configuration_block)
+    end
+    
+    def initialize(backup)
+        @backup = backup
+    end
+    
+    def archive(name, &configuration_block)
+        archive = Archive.new 
+        @backup.add_archive archive
+    end
+    
+    def son
+        backup_rotator = Rotator.new 
+        @backup.add_rotator :son, backup_rotator
+    end
+    def father
+        backup_rotator = Rotator.new 
+        @backup.add_rotator :father, backup_rotator
+    end
+    def grandfather
+        backup_rotator = Rotator.new 
+        @backup.add_rotator :grandfather, backup_rotator
+    end
+end
+
+require 'mail_message'
+class MailDsl
+    def self.configure(mail_config, &configuration_block)
+        self.new(mail_config).instance_eval(&configuration_block) 
+    end
+    
+    def initialize(mail_config)
+        @mail_config = mail_config
+    end
+    
+    def success_mail
+        @mail_config.add_mail(:succes_mail, MailMessage.new) 
+    end
+    
+    def error_mail
+        @mail_config.add_mail(:error_mail, MailMessage.new) 
+    end
+end
+

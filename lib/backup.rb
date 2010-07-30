@@ -7,6 +7,36 @@ require 'yaml'
 require 'reporter'
 
 
+class Backup
+    attr_reader :archives
+    
+    def initialize
+        @archives = []
+        @rotators = {}
+    end
+    
+    def add_archive(archive)
+        @archives << archive
+    end
+    
+    def add_rotator backup_name, rotator
+        @rotators[:backup_name] = rotator
+    end
+    
+    def creates_a? backup_name
+        @rotators[:backup_name]
+    end
+    
+    def run
+        begin 
+            @archives.each { |archive| archive.run }
+            return 0
+        rescue Exception => e
+            return 1
+        end
+    end
+end
+
 class BackupStatus
     attr_reader :last_month_backup, :last_week_backup
     def initialize(last_month_backup, last_week_backup)

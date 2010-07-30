@@ -1,0 +1,39 @@
+#!/usr/bin/env ruby
+$: << File.join(File.expand_path(File.dirname(__FILE__)),'..','lib')
+require 'backup'
+require File.join(File.dirname(__FILE__),'..','yarb_version')
+USAGE_MESSAGE = %Q{
+
+This backup utility lets you make a backup through a simple 
+configuration file 
+
+usage #{$0} [options]
+where options are:
+}
+
+def usage(parser) 
+    puts parser
+    exit(1)
+end
+    
+    
+def version
+	puts Yarb::VERSION; exit(1)
+end
+
+recipe_file = nil
+parser = OptionParser.new do |opts|
+    opts.banner = USAGE_MESSAGE
+    opts.on("-h", '--help', "show this message") { usage(parser) }
+    opts.on("-v", '--version', "show version") { version }
+    opts.on("-r", '--recipe', "use recipe (mandatory)") { |file| recipe_file = file }
+end 
+    
+rest = parser.parse ARGV
+usage(parser) unless recipe_file
+
+builder = BackupBuilder.from_file(recipe_file)
+backup = builder.build_backup
+
+backup.run
+

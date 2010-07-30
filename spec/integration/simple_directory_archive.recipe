@@ -1,0 +1,8 @@
+backup do 
+    archive 'simple_tar' do
+        file File.join(File.dirname(__FILE__),'input_data','mydir')
+        destination 'output_data' 
+    end
+end
+
+
