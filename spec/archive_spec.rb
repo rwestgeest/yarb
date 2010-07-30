@@ -1,6 +1,9 @@
 require 'archive'
 
 describe Archive do
+    it "can add a file"
+    it "can add more files at once"
+        
     describe 'run' do
         attr_reader :archive, :mock_shell_runner, :mock_delivery
         

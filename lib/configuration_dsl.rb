@@ -14,7 +14,7 @@ class MainDsl
     end
     
     def backup(&configuration_block)
-        backup = Backup.new
+        backup = Backup.new 
         BackupDsl.configure(backup, &configuration_block)
         @backup_recipe.backup = backup
     end

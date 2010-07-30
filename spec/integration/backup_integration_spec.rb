@@ -13,7 +13,6 @@ describe 'backups' do
     def run_backup recipe_file
         recipe = BackupConfiguration.from_file(File.join(File.dirname(__FILE__),recipe_file))  
         backup = recipe.backup
-
         backup.run
 #        system "#{File.join(PROJECT_ROOT, 'bin', 'yarb')} --recipe #{File.join(File.dirname(__FILE__),recipe)}"
     end    

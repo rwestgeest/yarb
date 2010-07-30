@@ -30,7 +30,7 @@ end
 require 'backup'
 describe BackupDsl do 
     it "can add a an archive" do
-        backup = Backup.new
+        backup = Backup.new nil
         BackupDsl.configure(backup) do
             archive('simple tar') {}
         end

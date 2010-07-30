@@ -1,5 +1,4 @@
-class ShellRunner
-end
+require 'shell_runner'
 
 class Archive
     attr_reader :files, :name
