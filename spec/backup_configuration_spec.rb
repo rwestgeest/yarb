@@ -8,7 +8,7 @@ describe BackupConfiguration do
         it "can ad an archive to the backup" do
             config = BackupConfiguration.from_string %Q{
                 backup do 
-                    archive 'simple_tar' 
+                    archive('simple_tar') {} 
                 end
             }
             

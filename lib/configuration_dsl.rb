@@ -38,7 +38,8 @@ class BackupDsl
     end
     
     def archive(name, &configuration_block)
-        archive = Archive.new 
+        archive = Archive.new(name) 
+        ArchiveDsl.configure(archive, &configuration_block) 
         @backup.add_archive archive
     end
     
@@ -53,6 +54,21 @@ class BackupDsl
     def grandfather
         backup_rotator = Rotator.new 
         @backup.add_rotator :grandfather, backup_rotator
+    end
+end
+
+class ArchiveDsl
+    def self.configure(archive, &configuration_block)
+        new(archive).instance_eval &configuration_block
+    end
+    def initialize(archive)
+        @archive = archive
+    end
+    def file(filename)
+        @archive.add_file filename
+    end
+    def destination(dirname)
+        @archive.destination = dirname
     end
 end
 
