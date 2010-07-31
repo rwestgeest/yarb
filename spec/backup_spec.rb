@@ -16,13 +16,13 @@ describe Backup do
         
         it "runs an archive task and returns 0" do
             working_dir.should_receive(:create)
-            archive.should_receive(:run).with(backup)
+            archive.should_receive(:run).with(no_args)
             backup.run.should == 0
         end
         
         it "should return 1 when archive raises an error" do
             working_dir.should_receive(:create)
-            archive.should_receive(:run).with(backup).and_raise 'some exception'
+            archive.should_receive(:run).and_raise 'some exception'
             backup.run.should == 1
         end
     end
@@ -39,16 +39,16 @@ describe Backup do
                     backup.deliver('some_file', 'some directory')
                 }.should raise_exception(DeliveryException)
             end
-        end   
+        end
+           
         describe 'if a son strategy defined' do
-            
             before do 
                 @son = mock
                 backup.son = son
             end
             
             it 'delivers though the son' do
-                son.should_receive(:execute)
+                son.should_receive(:execute).with('some_file', 'some directory')
                 backup.deliver('some_file', 'some directory')
             end
         end

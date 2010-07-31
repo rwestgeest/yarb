@@ -6,8 +6,8 @@ include FileUtils
 describe 'backups' do
     
     def tar_list
-        return 'output tar not present' unless File.exists?(output_file 'simple_tar.tgz')
-        `tar tvzf #{output_file 'simple_tar.tgz'}`
+        return 'output tar not present' unless File.exists?(output_file 'destination/_simple_tar.tgz')
+        `tar tvzf #{output_file 'destination/_simple_tar.tgz'}`
     end
         
     def run_backup recipe_file
@@ -18,8 +18,10 @@ describe 'backups' do
     end    
     
     before do
+        clean_input
+        clean_output
         create_input_file 'mydir/file1' 
-        create_input_file 'mydir/file1' 
+        create_input_file 'mydir/file2' 
     end
     
     after do
@@ -28,7 +30,7 @@ describe 'backups' do
     end
     
     it "can make a simple directory backup" do
-        pending 'waiting for backup runner to run'
+    #    pending 'waiting for backup runner to run'
         result = run_backup 'simple_directory_archive.recipe'
         result.should be_true, 'backup should be succesful'
         tar_list.should include 'mydir/file1' 

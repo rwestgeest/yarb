@@ -36,7 +36,6 @@ backup do
 end
 
 mail do 
-    
     error_mail do 
         to 'rob@blah.com'
         from 'root@blah.com'

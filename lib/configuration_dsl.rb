@@ -38,7 +38,7 @@ class BackupDsl
     end
     
     def archive(name, &configuration_block)
-        archive = Archive.new(name) 
+        archive = Archive.new(name, @backup) 
         ArchiveDsl.configure(archive, &configuration_block) 
         @backup.add_archive archive
     end
@@ -66,6 +66,9 @@ class ArchiveDsl
     end
     def file(filename)
         @archive.add_file filename
+    end
+    def files(*filenames)
+        @archive.add_files *filenames
     end
     def destination(dirname)
         @archive.destination = dirname
