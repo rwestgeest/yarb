@@ -27,7 +27,7 @@ class MainDsl
 end
 
 require 'archive'
-require 'rotator'
+require 'delivery'
 class BackupDsl
     def self.configure(backup, &configuration_block)
         self.new(backup).instance_eval(&configuration_block)

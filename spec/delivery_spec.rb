@@ -1,5 +1,5 @@
 require 'spec_helper'
-require 'rotator'
+require 'delivery'
 
 describe Rotator do
     describe "rotate" do
