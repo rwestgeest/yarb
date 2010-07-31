@@ -24,20 +24,6 @@ describe BackupConfiguration do
             
             config.mail(:success_mail).should be_a(MailMessage)
         end
-        
-        it "can configure a son" do
-            config = BackupConfiguration.from_string %Q{
-                backup do 
-                    son
-                    father
-                    grandfather
-                end
-            }
-            
-            config.backup.should create_a(:son)
-            config.backup.should create_a(:father)
-            config.backup.should create_a(:grandfather)
-        end
 
         describe 'complete archive specification' do
             it "builds a backup from an achive specification" do

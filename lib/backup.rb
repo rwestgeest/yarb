@@ -6,32 +6,18 @@ require 'yaml'
 
 require 'reporter'
 
-
-class DeliveryException < Exception; end
-
 class Backup
     attr_reader :archives
+    attr_reader :delivery
     
     def initialize(working_dir = WorkingDir.new('/tmp/yarb'))
         @working_dir = working_dir
+        @delivery = Delivery.new
         @archives = []
-        @rotators = {}
     end
     
     def add_archive(archive)
         @archives << archive
-    end
-    
-    def add_rotator backup_name, rotator
-        @rotators[backup_name] = rotator
-    end
-
-    def son= rotator
-        add_rotator :son, rotator 
-    end
-    
-    def creates_a? backup_name
-        @rotators[backup_name]
     end
     
     def run
@@ -47,12 +33,6 @@ class Backup
         end
     end
     
-    def deliver(file, directory)
-        if @rotators.empty?
-            raise DeliveryException.new("no rotators defined, don't know how to deliver")
-        end
-        @rotators[:son].execute(file, directory)
-    end
 end
 
 

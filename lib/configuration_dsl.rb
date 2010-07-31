@@ -38,22 +38,36 @@ class BackupDsl
     end
     
     def archive(name, &configuration_block)
-        archive = Archive.new(name, @backup) 
+        archive = Archive.new(name, @backup.delivery) 
         ArchiveDsl.configure(archive, &configuration_block) 
         @backup.add_archive archive
     end
     
+    def delivery(&configuration_block)
+        DeliveryDsl.configure(@backup.delivery, &configuration_block)
+    end
+end
+    
+require 'delivery'
+class DeliveryDsl
+    def self.configure(delivery, &configuration_block)
+        self.new(delivery).instance_eval(&configuration_block)
+    end
+    
+    def initialize(delivery)
+        @delivery = delivery
+    end
     def son
         backup_rotator = Rotator.new 
-        @backup.add_rotator :son, backup_rotator
+        @delivery.son = backup_rotator
     end
     def father
         backup_rotator = Rotator.new 
-        @backup.add_rotator :father, backup_rotator
+        @delivery.father = backup_rotator
     end
     def grandfather
         backup_rotator = Rotator.new 
-        @backup.add_rotator :grandfather, backup_rotator
+        @delivery.grandfather = backup_rotator
     end
 end
 

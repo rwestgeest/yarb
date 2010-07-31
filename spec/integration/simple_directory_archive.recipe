@@ -5,7 +5,9 @@ backup do
         destination output_file('destination') 
     end
     
-    son {}
+    delivery do
+        son {}
+    end
 end
 
 

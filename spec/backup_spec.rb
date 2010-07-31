@@ -26,34 +26,6 @@ describe Backup do
             backup.run.should == 1
         end
     end
-    
-    describe 'deliver' do
-        attr_reader :backup, :son
-        before do
-            @backup = Backup.new(mock("working dir").as_null_object)
-        end
-        
-        describe 'if no rotation strategy defined' do
-            it 'raises an exception' do
-                lambda {
-                    backup.deliver('some_file', 'some directory')
-                }.should raise_exception(DeliveryException)
-            end
-        end
-           
-        describe 'if a son strategy defined' do
-            before do 
-                @son = mock
-                backup.son = son
-            end
-            
-            it 'delivers though the son' do
-                son.should_receive(:execute).with('some_file', 'some directory')
-                backup.deliver('some_file', 'some directory')
-            end
-        end
-
-    end
 end
 
 

@@ -1,3 +1,4 @@
+require 'spec_helper'
 require 'configuration_dsl'
 
 require 'backup_configuration'
@@ -29,10 +30,14 @@ end
 
 require 'backup'
 describe BackupDsl do
-    attr_reader :backup 
+    attr_reader :backup
+    before do
+        @backup = Backup.new nil
+        
+    end
+    
     describe "adding an archive" do
         before do
-            @backup = Backup.new nil
             BackupDsl.configure(backup) do
                 archive('simple tar') {}
             end
@@ -43,8 +48,26 @@ describe BackupDsl do
             backup.archives.first.name.should == 'simple tar' 
         end
         
-        it "uses the backup as delivery" do
-            backup.archives.first.delivery.should == backup
+        it "uses the backups delivery as delivery" do
+            backup.archives.first.delivery.should == backup.delivery
+        end
+    end
+    
+    describe "defining the delivery strategy" do
+        it "sets the delivery on the backup" do
+            BackupDsl.configure(backup) do
+                delivery {}
+            end
+            backup.delivery.should_not be_nil
+        end
+        
+        it "can configure a son" do
+            BackupDsl.configure(backup) do
+                delivery do 
+                    son
+                end
+            end
+            backup.delivery.should create_a(:son)
         end
     end
 end
