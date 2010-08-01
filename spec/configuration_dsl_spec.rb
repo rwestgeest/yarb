@@ -111,9 +111,19 @@ describe ArchiveDsl do
     
     it "can set the destination for the archive" do
         ArchiveDsl.configure(archive) do
-            destination 'some dir'
+            destination 'some dir' 
         end
         archive.destination.should == 'some dir'
+    end
+    
+    it "can add a postgres_database" do
+        ArchiveDsl.configure(archive) do
+            postgres_database('database_name') { sudo_as 'gijs'}
+        end
+        archive.should have(1).commands
+        postgres_dump = archive.commands.first
+        postgres_dump.database_name.should == 'database_name'
+        postgres_dump.sudo_user.should == 'gijs'
     end
 
 end

@@ -71,6 +71,7 @@ class DeliveryDsl
     end
 end
 
+require 'postgres_dump'
 class ArchiveDsl
     def self.configure(archive, &configuration_block)
         new(archive).instance_eval &configuration_block
@@ -86,6 +87,24 @@ class ArchiveDsl
     end
     def destination(dirname)
         @archive.destination = dirname
+    end
+    
+    def postgres_database(name, &configuration_block)
+        database_dump = PostgresDump.new(name)
+        PostgresDumpDsl.configure(database_dump, &configuration_block)
+        @archive.add_command database_dump
+    end
+end
+
+class PostgresDumpDsl
+    def self.configure(database_dump, &configuration_block)
+        new(database_dump).instance_eval &configuration_block
+    end
+    def initialize(database_dump)
+        @database_dump = database_dump
+    end
+    def sudo_as(username)
+        @database_dump.sudo_as_user(username)
     end
 end
 

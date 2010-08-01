@@ -4,7 +4,7 @@ require 'date'
 require 'logger' 
 require 'yaml'
 
-require 'reporter'
+require 'delivery'
 
 class Backup
     attr_reader :archives
@@ -22,9 +22,10 @@ class Backup
     
     def run
         begin 
-            @working_dir.create
-            @archives.each { |archive| archive.run }
-            return 0
+            @working_dir.in do 
+                @archives.each { |archive| archive.run }
+                return 0
+            end
         rescue DeliveryException => e
             puts "could not deliver backup to end location because: " + e
           #  puts e.backtrace

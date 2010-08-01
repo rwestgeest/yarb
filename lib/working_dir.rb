@@ -6,6 +6,11 @@ class WorkingDir
         @dirname = dirname
     end
     
+    def in(&block)
+        create
+        cd @dirname, &block
+    end
+    
     def create
         begin 
             mkdir_p @dirname

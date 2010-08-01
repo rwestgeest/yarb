@@ -15,13 +15,13 @@ describe Backup do
         end
         
         it "runs an archive task and returns 0" do
-            working_dir.should_receive(:create)
+            working_dir.should_receive(:in).and_yield
             archive.should_receive(:run).with(no_args)
             backup.run.should == 0
         end
         
         it "should return 1 when archive raises an error" do
-            working_dir.should_receive(:create)
+            working_dir.should_receive(:in).and_yield
             archive.should_receive(:run).and_raise 'some exception'
             backup.run.should == 1
         end

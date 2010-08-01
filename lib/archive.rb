@@ -1,12 +1,13 @@
 require 'shell_runner'
 
 class Archive
-    attr_reader :files, :name, :delivery
+    attr_reader :files, :name, :delivery, :commands
     attr_accessor :destination
     def initialize(name, delivery, shell_runner = ShellRunner.new)
         @name = name
         @delivery = delivery
         @files = []
+        @commands = []
         @shell_runner = shell_runner
     end
     
@@ -18,17 +19,19 @@ class Archive
         @files += filenames
     end
     
-    def run 
+    def add_command(command)
+        @commands << command
+    end
+    
+    def run
+        @files += @commands.collect { |command| command.run }
         @shell_runner.run_command tar_command
-        @delivery.deliver(temp_output, destination)
+        @delivery.deliver(tar, destination)
     end    
     
     private 
     def tar_command
-        "tar cvzf #{temp_output} #{input_files}"
-    end
-    def temp_output
-        "/tmp/yarb/#{tar}"
+        "tar cvzf #{tar} #{input_files}"
     end
     def tar
         "#{@delivery.target_filename(name)}.tgz"

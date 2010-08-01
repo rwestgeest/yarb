@@ -4,9 +4,7 @@ backup do
         file 'file'
         
         postgres_database 'some_db' do
-            user 'some user'
-            password 'some_pw'
-            host 'localhost'
+            sudo 'postgres'
         end
          
         destination '/some_path'

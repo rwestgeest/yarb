@@ -12,7 +12,7 @@ describe Archive do
             archive.add_file 'filename1'
             archive.destination = '/some/directory'
             mock_delivery.stub!(:target_filename).with('my_archive').and_return('generated_filename')            
-            @generated_filepath = '/tmp/yarb/generated_filename.tgz'
+            @generated_filepath = 'generated_filename.tgz'
         end
         
         it "runs a tar command using one input file sending it to the output directory" do
@@ -27,5 +27,28 @@ describe Archive do
             mock_delivery.should_receive(:deliver).with(generated_filepath, '/some/directory')
             archive.run 
         end
+     
+        describe "with commands" do
+            attr_reader :command
+            before do 
+                @command = mock 'command'
+                archive.add_command command
+                mock_delivery.stub!(:deliver) # tested above
+            end
+            it "adds a result of a command to the tar" do
+                command.should_receive(:run).and_return 'command_result.txt'
+                mock_shell_runner.should_receive(:run_command).with("tar cvzf #{generated_filepath} filename1 command_result.txt")
+                archive.run 
+            end
+            it "supports more commands in this" do
+                command2 = mock 'command'
+                archive.add_command(command2)
+                command.should_receive(:run).and_return('command_result.txt')
+                command2.should_receive(:run).and_return('command_result2.txt')
+                mock_shell_runner.should_receive(:run_command).with("tar cvzf #{generated_filepath} filename1 command_result.txt command_result2.txt")
+                archive.run 
+            end
+        end   
     end
+    
 end
