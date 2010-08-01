@@ -29,10 +29,16 @@ describe ShellRunner do
             clean_output
         end
 
-        it "moves the file from source to destination" do
+        it "moves the file from source to destination file" do
             create_input_file 'source_file'
             shell_runner.move(input_file('source_file'),output_file('destination/dest_file'))    
             File.should exist(output_file('destination/dest_file'))
         end
+        it "moves the file from source to destination dir" do
+            create_input_file 'source_file'
+            shell_runner.move(input_file('source_file'),output_file('destination/'))    
+            File.should exist(output_file('destination/source_file'))
+        end
+
     end
 end

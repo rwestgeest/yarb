@@ -7,7 +7,11 @@ class ShellRunner
     end
     
     def move(source, destination)
-        mkdir_p File.dirname(destination)
+        if destination.end_with?('/')
+            mkdir_p destination
+        else
+            mkdir_p File.dirname(destination)
+        end
         mv source, destination
     end
 end

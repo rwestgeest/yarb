@@ -58,15 +58,15 @@ class DeliveryDsl
         @delivery = delivery
     end
     def son
-        backup_rotator = Rotator.new 
+        backup_rotator = Rotator.new('son') 
         @delivery.son = backup_rotator
     end
     def father
-        backup_rotator = Rotator.new 
+        backup_rotator = Rotator.new('father')
         @delivery.father = backup_rotator
     end
     def grandfather
-        backup_rotator = Rotator.new 
+        backup_rotator = Rotator.new('grandfather')
         @delivery.grandfather = backup_rotator
     end
 end

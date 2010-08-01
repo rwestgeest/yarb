@@ -27,10 +27,12 @@ class Backup
             return 0
         rescue DeliveryException => e
             puts "could not deliver backup to end location because: " + e
+          #  puts e.backtrace
         rescue Exception => e
             puts "uh oh " + e
-            return 1
+          #  puts e.backtrace
         end
+        return 1
     end
     
 end

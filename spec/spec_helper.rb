@@ -9,6 +9,10 @@ def create_a(backup)
     simple_matcher("create a #{backup}") {|given| given.creates_a?(backup)}
 end 
 
+def start_with(substring)
+    simple_matcher("to start with #{substring}") {|given| given.start_with?(substring)}
+end
+
 def clean_input
     return unless File.exists? input_dir  
     rm_r input_dir

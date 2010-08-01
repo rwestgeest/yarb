@@ -20,7 +20,7 @@ class Archive
     
     def run 
         @shell_runner.run_command tar_command
-        @delivery.deliver(tar, destination)
+        @delivery.deliver(temp_output, destination)
     end    
     
     private 
@@ -31,7 +31,7 @@ class Archive
         "/tmp/yarb/#{tar}"
     end
     def tar
-        "#{name}.tgz"
+        "#{@delivery.target_filename(name)}.tgz"
     end
     def input_files
         files.join(' ')
