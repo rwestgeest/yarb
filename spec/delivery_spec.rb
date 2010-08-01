@@ -137,8 +137,6 @@ describe Rotator do
             shell.should_receive(:move).with('filename','destination/')
             rotator.execute('filename','destination')
         end
-        it "determines the filename based on name, date and archive name"
-        it "adds the date in the filename"
         it "removes destinations for this rotator until it matches the maximum to keep"
     end
 end

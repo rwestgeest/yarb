@@ -1,6 +1,8 @@
 #!/usr/bin/env ruby
+require 'optparse'
 $: << File.join(File.expand_path(File.dirname(__FILE__)),'..','lib')
 require 'backup'
+require 'backup_configuration'
 require File.join(File.dirname(__FILE__),'..','yarb_version')
 USAGE_MESSAGE = %Q{
 
@@ -26,14 +28,12 @@ parser = OptionParser.new do |opts|
     opts.banner = USAGE_MESSAGE
     opts.on("-h", '--help', "show this message") { usage(parser) }
     opts.on("-v", '--version', "show version") { version }
-    opts.on("-r", '--recipe', "use recipe (mandatory)") { |file| recipe_file = file }
+    opts.on("-r", '--recipe file', "use recipe (mandatory)") { |file| recipe_file = file }
 end 
     
 rest = parser.parse ARGV
 usage(parser) unless recipe_file
 
-builder = BackupBuilder.from_file(recipe_file)
-backup = builder.build_backup
-
+recipe = BackupConfiguration.from_file(recipe_file)  
+backup = recipe.backup
 backup.run
-
