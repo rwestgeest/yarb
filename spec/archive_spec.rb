@@ -11,7 +11,7 @@ describe Archive do
             @archive = Archive.new('my_archive', mock_delivery, mock_shell_runner)
             archive.add_file 'filename1'
             archive.destination = '/some/directory'
-            mock_delivery.stub!(:target_filename).with('my_archive').and_return('generated_filename')            
+            mock_delivery.stub!(:target_filename).with('my_archive').and_return('generated_filename.tgz')            
             @generated_filepath = 'generated_filename.tgz'
         end
         

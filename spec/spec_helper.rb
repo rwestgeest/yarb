@@ -1,3 +1,4 @@
+require 'rubygems'
 require 'fileutils'
 PROJECT_ROOT=File.expand_path(File.join(File.dirname(__FILE__),'..'))
 
@@ -5,12 +6,23 @@ $: << File.join(File.dirname(__FILE__),'..','lib')
 
 include FileUtils
 
+class Date
+    def inspect
+        strftime "%d-%m-%Y"
+    end
+end
+
+
 def create_a(backup)
     simple_matcher("create a #{backup}") {|given| given.creates_a?(backup)}
 end 
 
 def start_with(substring)
     simple_matcher("to start with #{substring}") {|given| given.start_with?(substring)}
+end
+
+def end_with(substring)
+    simple_matcher("to end with #{substring}") {|given| given.end_with?(substring)}
 end
 
 def clean_input

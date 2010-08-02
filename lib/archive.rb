@@ -34,7 +34,7 @@ class Archive
         "tar cvzf #{tar} #{input_files}"
     end
     def tar
-        "#{@delivery.target_filename(name)}.tgz"
+        @delivery.target_filename(name)
     end
     def input_files
         files.join(' ')

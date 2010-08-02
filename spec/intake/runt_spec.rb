@@ -1,14 +1,7 @@
 require 'spec_helper'
-require 'rubygems'
 require 'runt'
 
 include Runt
-
-class Date
-    def inspect
-        strftime "%d-%m-%Y"
-    end
-end
 
 describe "run expressions" do
 

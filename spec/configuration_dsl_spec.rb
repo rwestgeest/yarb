@@ -33,7 +33,6 @@ describe BackupDsl do
     attr_reader :backup
     before do
         @backup = Backup.new nil
-        
     end
     
     describe "adding an archive" do
@@ -64,11 +63,49 @@ describe BackupDsl do
         it "can configure a son" do
             BackupDsl.configure(backup) do
                 delivery do 
-                    son
+                    son 
                 end
             end
             backup.delivery.should create_a(:son)
         end
+    end
+end
+
+describe DeliveryDsl do
+    describe 'configure son' do
+        it "adds a son to delivery" do
+            delivery = Delivery.new
+            DeliveryDsl.configure(delivery) do
+                son 
+            end
+            delivery.should create_a(:son)
+        end
+        it "can pass a name in configuration" do
+            delivery = Delivery.new
+            DeliveryDsl.configure(delivery) do
+                son 'daily'
+            end
+            delivery.son.name.should == 'daily'
+        end
+    end
+end
+
+describe RotatorDsl do
+    attr_reader :rotator
+    before do
+        @rotator = Rotator.new :son, ''
+    end
+    it "can configure the name in the block" do
+        RotatorDsl.configure(rotator) do
+            name 'daily'
+        end
+        rotator.name.should == 'daily'
+    end
+    it "can configure the number of backups to keep" do
+        RotatorDsl.configure(rotator) do
+            keep 31
+        end
+        rotator.number_to_keep.should == 31
     end
 end
 

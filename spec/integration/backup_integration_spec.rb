@@ -6,7 +6,7 @@ include FileUtils
 describe 'backups' do
     
     def tar_list
-        expected_tar = output_file "destination/simple_tar_son_#{Date.today.strftime('%Y-%m-%d')}.tgz"
+        expected_tar = output_file "destination/simple_tar_daily_#{Date.today.strftime('%Y-%m-%d')}.tgz"
         return 'output tar not present' unless File.exists?(expected_tar)
         `tar tvzf #{expected_tar}`
     end

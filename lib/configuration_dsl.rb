@@ -57,17 +57,38 @@ class DeliveryDsl
     def initialize(delivery)
         @delivery = delivery
     end
-    def son
-        backup_rotator = Rotator.new('son') 
+    def son(name = nil, &configuration_block)
+        backup_rotator = Rotator.new('son',name) 
+        RotatorDsl.configure(backup_rotator, &configuration_block)
         @delivery.son = backup_rotator
     end
     def father
-        backup_rotator = Rotator.new('father')
+        backup_rotator = Rotator.new('father', name)
         @delivery.father = backup_rotator
     end
     def grandfather
-        backup_rotator = Rotator.new('grandfather')
+        backup_rotator = Rotator.new('grandfather', name)
         @delivery.grandfather = backup_rotator
+    end
+end
+
+class RotatorDsl
+    def self.configure(rotator, &configuration_block) 
+        instance = new(rotator)
+        instance.instance_eval(&configuration_block) if block_given?
+        return instance
+    end
+    
+    def initialize(rotator)
+        @rotator = rotator
+    end
+
+    def name(name)
+        @rotator.name = name
+    end
+    
+    def keep(amount)
+        @rotator.number_to_keep = amount
     end
 end
 

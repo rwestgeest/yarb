@@ -7,7 +7,9 @@ backup do
     end
     
     delivery do
-        son {}
+        son 'daily' do
+            keep 30
+        end
     end
 end
 
