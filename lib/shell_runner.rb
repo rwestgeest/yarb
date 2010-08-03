@@ -14,4 +14,13 @@ class ShellRunner
         end
         mv source, destination
     end
+    
+    def rm(filepath)
+        super(filepath)
+    end
+    
+    def ordered_list(path)
+        path << '/*' if File.directory?(path)
+        Dir[path].sort
+    end
 end

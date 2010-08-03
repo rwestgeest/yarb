@@ -17,14 +17,14 @@ describe Archive do
         
         it "runs a tar command using one input file sending it to the output directory" do
             mock_shell_runner.should_receive(:run_command).with("tar cvzf #{generated_filepath} filename1")
-            mock_delivery.should_receive(:deliver).with(generated_filepath, '/some/directory')
+            mock_delivery.should_receive(:deliver).with('my_archive', '/some/directory')
             archive.run 
         end
         
         it "runs a tar command using multiple input files sending it to the output directory" do
             archive.add_file 'filename2'
             mock_shell_runner.should_receive(:run_command).with("tar cvzf #{generated_filepath} filename1 filename2")
-            mock_delivery.should_receive(:deliver).with(generated_filepath, '/some/directory')
+            mock_delivery.should_receive(:deliver).with('my_archive', '/some/directory')
             archive.run 
         end
      

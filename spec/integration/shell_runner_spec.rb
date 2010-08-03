@@ -18,7 +18,6 @@ describe ShellRunner do
     end
     
     describe "move" do
-        
         before do
             clean_input
             clean_output
@@ -39,6 +38,34 @@ describe ShellRunner do
             shell_runner.move(input_file('source_file'),output_file('destination/'))    
             File.should exist(output_file('destination/source_file'))
         end
-
     end
+
+    describe "rm" do
+        it "removes a file" do
+            create_input_file 'the_file'
+            File.should exist(input_file('the_file'))
+            shell_runner.rm input_file('the_file')
+            File.should_not exist(input_file('the_file'))
+        end
+    end
+    
+    describe "ordered_list" do
+        before do
+            clean_input
+            create_input_file 'dir/the_file2'
+            create_input_file 'dir/the_file1'
+            create_input_file 'dir/another_file'
+        end
+
+        it "returns a alphabetically ordered directory listing" do
+            list = shell_runner.ordered_list input_file('dir')
+            list.should == [input_file('dir/another_file'), input_file('dir/the_file1'), input_file('dir/the_file2')]
+        end
+
+        it "returns a alphabetically ordered directory for a pattern" do
+            list = shell_runner.ordered_list input_file('dir/the*')
+            list.should == [input_file('dir/the_file1'), input_file('dir/the_file2')]
+        end
+    end    
+    
 end

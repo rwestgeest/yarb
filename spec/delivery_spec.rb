@@ -139,8 +139,8 @@ describe Rotator do
             rotator.target_filename('myarchive').should include('son')
         end
         
-        it "contains the date " do
-            rotator.target_filename('myarchive').should include(Date.today.strftime('%Y-%m-%d'))
+        it "contains the date formatted for alphabetical sorting " do
+            rotator.target_filename('myarchive').should include(today)
         end
         
         it "ends with a tgz extension" do
@@ -156,17 +156,21 @@ describe Rotator do
             @rotator = Rotator.new('son', nil, shell)
         end
         it "sends the file to a rotated filename in the destination directory" do
-            shell.should_receive(:move).with('archive','destination/')
+            shell.should_receive(:move).with(include("archive_son_#{today}"),'destination/')
             rotator.execute('archive', 'destination')
         end
         
         it "removes destinations for this rotator until it matches the maximum to keep" do
             rotator.number_to_keep = 1
-            shell.should_receive(:move).with('archive','destination/')
+            shell.should_receive(:move).with(include("archive_son_#{today}"),'destination/')
             shell.should_receive(:ordered_list).with('destination/archive_son*').and_return ['file1', 'file2', 'file3']
             shell.should_receive(:rm).with('file1')
             shell.should_receive(:rm).with('file2')
             rotator.execute('archive', 'destination')
         end
+    end
+    
+    def today
+        Date.today.strftime('%Y-%m-%d')
     end
 end

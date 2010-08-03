@@ -100,7 +100,7 @@ class Rotator
     end
     
     def execute(archive_name, destination)
-        @shell.move(archive_name, "#{destination}/")
+        @shell.move(target_filename(archive_name), "#{destination}/")
         if (number_to_keep > 0)
             filelist = @shell.ordered_list("#{destination}/#{base_name(archive_name)}*") 
             while filelist.size > number_to_keep

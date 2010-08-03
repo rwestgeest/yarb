@@ -26,16 +26,18 @@ class Archive
     def run
         @files += @commands.collect { |command| command.run }
         @shell_runner.run_command tar_command
-        @delivery.deliver(tar, destination)
+        @delivery.deliver(name, destination)
     end    
     
     private 
     def tar_command
         "tar cvzf #{tar} #{input_files}"
     end
+    
     def tar
         @delivery.target_filename(name)
     end
+    
     def input_files
         files.join(' ')
     end
