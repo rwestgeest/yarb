@@ -30,7 +30,7 @@ require File.join(File.dirname(__FILE__),'yarb_version')
   s.homepage = "http://notaresource.blogspot.com/yarb"
   s.platform = Gem::Platform::RUBY
   s.summary = "Yet another ruby backupper"
-  s.files = FileList["yarb_version.rb", "Rakefile", "conf/example.recipe", "{bin}/*","{lib}/**/*"].to_a
+  s.files = FileList["yarb_version.rb", "Rakefile", "doc/example.recipe", "{bin}/*","{lib}/**/*"].to_a
   s.test_files = FileList["{spec}/**/*_spec.rb"].to_a
   s.has_rdoc = true
   s.require_path = 'yarb'
