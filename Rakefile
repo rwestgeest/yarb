@@ -35,6 +35,7 @@ require File.join(File.dirname(__FILE__),'yarb_version')
   s.has_rdoc = true
   s.require_path = 'yarb'
   s.executables << 'yarb'
+  s.add_dependency("runt", ">= 0.7.0")
   s.add_dependency("rspec", ">= 1.3.0")
 end
  

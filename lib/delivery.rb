@@ -57,7 +57,7 @@ class Delivery
     private 
     def appropriate_rotator &block
         [:grandfather, :father, :son].each do |rotator_name|
-            return yield @rotators[rotator_name] if @rotators[rotator_name].should_be_used?
+            return yield(@rotators[rotator_name]) if @rotators[rotator_name].should_be_used?
         end
     end
 end
