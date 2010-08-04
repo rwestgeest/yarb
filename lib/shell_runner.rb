@@ -1,5 +1,5 @@
 require 'fileutils'
-
+require 'string_ext'
 class ShellRunner
     include FileUtils
     def run_command(command)
