@@ -12,6 +12,7 @@ configuration file
 
 usage #{$0} [options]
 where options are:
+
 }
 
 def usage(parser) 
@@ -29,7 +30,7 @@ parser = OptionParser.new do |opts|
     opts.banner = USAGE_MESSAGE
     opts.on("-h", '--help', "show this message") { usage(parser) }
     opts.on("-v", '--version', "show version") { version }
-    opts.on("-r", '--recipe file', "use recipe (mandatory)") { |file| recipe_file = file }
+    opts.on("-r", '--recipe file', "use recipe (mandatory) - see doc/example.recipe for an example") { |file| recipe_file = file }
 end 
     
 rest = parser.parse ARGV

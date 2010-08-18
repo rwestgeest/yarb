@@ -59,17 +59,14 @@ describe 'backups' do
     end
 
     describe 'with postgres database' do
-        before do
-            system 'sudo -u postgres createdb my_database'
-        end
-        after do
-            system 'sudo -u postgres dropdb my_database'
-        end
         it "can include a postgres dump in the archive" do
+            pending "you might not want to create a postgres database - enable this spec if you do"
+            system('sudo -u postgres createdb my_yarb_database')
             result = run_backup 'directory_with_postgres_dump_archive.recipe'
             result.should be_true, 'backup should be succesful'
             tar_list('simple_tar_daily').should include 'mydir/file1' 
-            tar_list('simple_tar_daily').should include 'my_database_postgres.dump' 
+            tar_list('simple_tar_daily').should include 'my_yarb_database_postgres.dump' 
+            system('sudo -u postgres dropdb my_yarb_database')
         end
     end
 

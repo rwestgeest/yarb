@@ -1,0 +1,35 @@
+(c) Rob Westgeest - Westgeest-Consultancy 
+yarb - yet another ruby backup system. 
+
+This software comes with absolutely no warranty. 
+I can be used at your own risk. While this software is tested extensively and comes with lots of automated tests,
+it will probably run under system administration permissions and therefore you should take care on working with this software.
+We cannot be held responsible for possible damage on your system.
+
+This software can be used to create backups en use a readable recipe language to configure them.
+
+This software creates a temp directory /tmp/yarb and runs from there.
+It creates archives there and when finished moves them to the location specified in the recipe.
+
+Current features:
+* execute a backup from a recipe containing multiple archives that share a delivery mechanism (grandfather, father, son) 
+
+* archives can contain files directories and database dumps (currently postgres only)
+
+* delivery is done to the destination specified in the archive 
+* delivery runs according to a grandfather, father, son strategy where:
+  * when to create a grandfather, father or son can be configured
+  * if a grandfather does not exist it will create that one first  or
+  * if a father does not exist it will crate that one first 
+  * it removes old backups by keeping the 'keep' newest 
+
+see doc/example.recipe for an example backup recipe
+
+use rake to test yarb, rake will run all specs
+
+rake gem builds the gem package.
+
+
+
+
+

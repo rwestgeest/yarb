@@ -2,25 +2,33 @@ require 'rubygems'
 require 'rake/gempackagetask'
 require File.join(File.dirname(__FILE__),'yarb_version')
 
- desc 'Running all specs'
- task :default => :spec
- task :spec do
-    test_files = ['spec/**/*_spec.rb', 'spec/*_spec.rb']
-    test_files.each do |file_set|
-        Dir[file_set].each do |specfile| 
-            require specfile
-        end
+require 'rake'
+require 'spec/rake/spectask'
+
+task :default => 'spec:all'
+
+namespace :spec do
+    task :all => :integration
+
+    desc 'Running all unit specs'
+    Spec::Rake::SpecTask.new('units') do |t|
+        t.spec_files = FileList['spec/*_spec.rb','spec/intake/*_spec.rb']
     end
- end
- 
- desc 'Measures test coverage'
- task :coverage do
+
+    desc 'Running all integration specs'
+    Spec::Rake::SpecTask.new('integration' => :units)  do |t|
+        t.spec_files = FileList['spec/integration/*_spec.rb']
+    end
+end
+
+desc 'Measures test coverage'
+task :coverage do
      rm_f "coverage"
      rm_f "coverage.data"
      rcov = "rcov --aggregate coverage.data"
      system("#{rcov} --spec-only --html spec/*_spec.rb")
      system("#{rcov} --spec-only --html spec/**/*_spec.rb")
- end
+end
  
  spec = Gem::Specification.new do |s| 
   s.name = "yarb"
