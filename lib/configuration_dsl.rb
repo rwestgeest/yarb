@@ -49,6 +49,7 @@ class BackupDsl
 end
     
 require 'delivery'
+require 'runt'
 class DeliveryDsl
     def self.configure(delivery, &configuration_block)
         self.new(delivery).instance_eval(&configuration_block)
@@ -58,24 +59,28 @@ class DeliveryDsl
         @delivery = delivery
     end
     def son(name = nil, &configuration_block)
-        backup_rotator = Rotator.new('son',name) 
+        @delivery.son = configure_rotator('son',name, &configuration_block) 
+    end
+    def father(name = nil, &configuration_block)
+        @delivery.father = configure_rotator('father',name, &configuration_block) 
+    end
+    def grandfather(name = nil, &configuration_block)
+        @delivery.grandfather = configure_rotator('grandfather',name, &configuration_block) 
+    end
+    
+    private 
+    def configure_rotator(type, name, &configuration_block) 
+        backup_rotator = Rotator.new(type, name) 
         RotatorDsl.configure(backup_rotator, &configuration_block)
-        @delivery.son = backup_rotator
-    end
-    def father
-        backup_rotator = Rotator.new('father', name)
-        @delivery.father = backup_rotator
-    end
-    def grandfather
-        backup_rotator = Rotator.new('grandfather', name)
-        @delivery.grandfather = backup_rotator
+        return backup_rotator
     end
 end
 
-class RotatorDsl
+class RotatorDsl 
+    include Runt
     def self.configure(rotator, &configuration_block) 
         instance = new(rotator)
-        instance.instance_eval(&configuration_block) if block_given?
+        instance.instance_eval &configuration_block if block_given?
         return instance
     end
     
@@ -89,6 +94,10 @@ class RotatorDsl
     
     def keep(amount)
         @rotator.number_to_keep = amount
+    end
+    
+    def on_each(runt_expression)
+        @rotator.should_run_on_each(runt_expression)
     end
 end
 

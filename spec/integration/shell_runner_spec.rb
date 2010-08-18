@@ -67,5 +67,28 @@ describe ShellRunner do
             list.should == [input_file('dir/the_file1'), input_file('dir/the_file2')]
         end
     end    
-    
+
+    describe "exists?(path)" do
+        before do
+            clean_input
+        end
+        
+        it "returns false it the input is empty" do
+            shell_runner.exists?(input_file('*')).should be_false
+        end
+        
+        it "returns true if the file exists" do
+            create_input_file('blah.txt')
+            shell_runner.exists?(input_file('blah.txt')).should be_true
+        end
+        
+        it "returns true if some file exists in wild card" do
+            create_input_file('blah.txt')
+            shell_runner.exists?(input_file('blah*')).should be_true
+        end
+        it "returns false if othing exists in wild card" do
+            create_input_file('blah.txt')
+            shell_runner.exists?(input_file('bloh*')).should be_false
+        end
+    end
 end

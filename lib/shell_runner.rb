@@ -23,4 +23,9 @@ class ShellRunner
         path << '/*' if File.directory?(path)
         Dir[path].sort
     end
+    
+    def exists?(path)
+        not Dir[path].empty?
+    end
+
 end

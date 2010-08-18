@@ -64,16 +64,16 @@ describe Delivery do
         end
 
         def expect_to_delegate_to_son
-            son.should_receive(:execute).with(working_archive_file, 'some_file', 'some directory')
+            son.should_receive(:execute).with(working_archive_file, 'some_file', 'some directory').and_return true
         end
         def expect_to_delegate_to_father
             son.should_receive(:execute).never
-            father.should_receive(:execute).with(working_archive_file, 'some_file', 'some directory')
+            father.should_receive(:execute).with(working_archive_file, 'some_file', 'some directory').and_return true
         end
         def expect_to_delegate_to_grandfather
             son.should_receive(:execute).never
             father.should_receive(:execute).never
-            grandfather.should_receive(:execute).with(working_archive_file,'some_file', 'some directory')
+            grandfather.should_receive(:execute).with(working_archive_file,'some_file', 'some directory').and_return true
         end
         def doit
             delivery.deliver('some_file', 'some directory')
@@ -95,9 +95,11 @@ require 'runt'
 include Runt
 
 describe Rotator do
-    attr_reader :rotator
+    attr_reader :rotator, :shell
+    
     before do
-        @rotator = Rotator.new('son',nil)
+        @shell = mock('shell')
+        @rotator = Rotator.new('son',nil, shell)
     end
     
     describe "should_be_used?" do
@@ -105,7 +107,17 @@ describe Rotator do
             rotator.should_be_used?('archive_name', 'destination').should be_true
         end
         
+        it "returns true if files of this type do not exist" do
+            rotator.should_run_on_each last_friday
+            shell.stub!(:exists?).with('destination/archive_name_son*').and_return false
+            rotator.should_be_used?('archive_name', 'destination').should be_true
+        end
+        
         describe "when files of this type exist" do
+            before do
+                shell.stub!(:exists?).with('destination/archive_name_son*').and_return true
+            end
+            
             it "returns false if date does not match the should_run_on_each runt spec" do
                 rotator.should_run_on_each last_friday
                 rotator.should_be_used?('archive_name', 'destination', Date.parse("29-07-2010")).should be_false
@@ -118,27 +130,62 @@ describe Rotator do
         end
     end
     
-
-    
     describe "execute" do
         attr_reader :rotator, :shell
         before do
             @shell = mock('shell')
             @rotator = Rotator.new('son', nil, shell)
         end
-        it "sends the file to a rotated filename in the destination directory" do
-            shell.should_receive(:move).with('working_archive_file', include("destination/archive_son_#{today_as_string}"))
-            rotator.execute('working_archive_file','archive', 'destination')
-        end
         
-        it "removes destinations for this rotator until it matches the maximum to keep" do
-            rotator.number_to_keep = 1
-            shell.should_receive(:move).with('working_archive_file', include("destination/archive_son_#{today_as_string}"))
-            shell.should_receive(:ordered_list).with('destination/archive_son*').and_return ['file1', 'file2', 'file3']
-            shell.should_receive(:rm).with('file1')
-            shell.should_receive(:rm).with('file2')
-            rotator.execute('working_archive_file','archive', 'destination')
+        describe " - by default" do
+            it "sends the file to a rotated filename in the destination directory by default" do
+                shell.should_receive(:move).with('working_archive_file', include("destination/archive_son_#{today_as_string}"))
+                rotator.execute('working_archive_file','archive', 'destination').should be_true
+            end
+            
+            it "removes destinations for this rotator until it matches the maximum to keep" do
+                rotator.number_to_keep = 1
+                shell.should_receive(:move).with('working_archive_file', include("destination/archive_son_#{today_as_string}"))
+                shell.should_receive(:ordered_list).with('destination/archive_son*').and_return ['file1', 'file2', 'file3']
+                shell.should_receive(:rm).with('file1')
+                shell.should_receive(:rm).with('file2')
+                rotator.execute('working_archive_file','archive', 'destination')
+            end
         end
+
+        describe " - given a delivery of this type has never happened" do
+            before do
+                shell.stub!(:exists?).with('destination/archive_son*').and_return false
+            end
+            
+            it "sends the file to a rotated filename in the destination directory by default" do
+                shell.should_receive(:move).with('working_archive_file', include("destination/archive_son_#{today_as_string}"))
+                rotator.execute('working_archive_file','archive', 'destination').should be_true
+            end
+        end
+
+        describe "- given a delivery of this type happened before" do
+            before do
+                shell.stub!(:exists?).with('destination/archive_son*').and_return true 
+            end
+            
+            describe "- and it should happen on each last friday" do
+                before do
+                    rotator.should_run_on_each last_friday 
+                end
+                it "moves nothing and returns false it is not last friday" do
+                    shell.should_receive(:move).never
+                    rotator.execute('working_archive_file','archive', 'destination', Date.parse("29-07-2010")).should be_false
+                end
+                
+                it "moves the file and returns true if the date matches" do
+                    shell.should_receive(:move).with('working_archive_file', include("destination/archive_son_#{today_as_string}"))
+                    rotator.execute('working_archive_file','archive', 'destination', Date.parse("30-07-2010")).should be_true
+                end
+
+            end        
+        end        
+        
     end
 
     describe "destination_archive_file" do

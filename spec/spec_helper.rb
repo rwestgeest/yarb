@@ -44,11 +44,11 @@ def output_file file
 end
 
 def input_dir
-    File.join(File.dirname(__FILE__), 'input_data')
+    File.expand_path File.join(File.dirname(__FILE__), 'input_data')
 end
 
 def output_dir
-    File.join(File.dirname(__FILE__), 'output_data')
+    File.expand_path File.join(File.dirname(__FILE__), 'output_data')
 end
 
 def create_input_file file

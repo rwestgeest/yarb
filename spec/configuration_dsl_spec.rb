@@ -72,25 +72,89 @@ describe BackupDsl do
 end
 
 describe DeliveryDsl do
+    attr_reader :delivery 
+    before do 
+        @delivery = Delivery.new
+    end
     describe 'configure son' do
         it "adds a son to delivery" do
-            delivery = Delivery.new
             DeliveryDsl.configure(delivery) do
                 son 
             end
             delivery.should create_a(:son)
         end
         it "can pass a name in configuration" do
-            delivery = Delivery.new
             DeliveryDsl.configure(delivery) do
                 son 'daily'
             end
             delivery.son.name.should == 'daily'
         end
+        it "runs its configureation" do
+            was_run = false
+            DeliveryDsl.configure(delivery) do
+                son 'daily' do
+                    was_run = true
+                end
+            end
+            was_run.should be_true
+        end
+    end
+    
+    describe 'configure father' do
+        it "adds a father to delivery" do
+            delivery = Delivery.new
+            DeliveryDsl.configure(delivery) do
+                father 
+            end
+            delivery.should create_a(:father)
+        end
+        it "can pass a name in configuration" do
+            delivery = Delivery.new
+            DeliveryDsl.configure(delivery) do
+                father 'daily'
+            end
+            delivery.father.name.should == 'daily'
+        end
+        it "runs its configureation" do
+            was_run = false
+            DeliveryDsl.configure(delivery) do
+                father 'weekley' do
+                    was_run = true
+                end
+            end
+            was_run.should be_true
+        end
+    end
+    
+    describe 'configure grandfather' do
+        it "adds a father to delivery" do
+            delivery = Delivery.new
+            DeliveryDsl.configure(delivery) do
+                grandfather
+            end
+            delivery.should create_a(:grandfather)
+        end
+        it "can pass a name in configuration" do
+            delivery = Delivery.new
+            DeliveryDsl.configure(delivery) do
+                grandfather 'yearly'
+            end
+            delivery.grandfather.name.should == 'yearly'
+        end
+        it "runs its configureation" do
+            was_run = false
+            DeliveryDsl.configure(delivery) do
+                grandfather 'weekley' do
+                    was_run = true
+                end
+            end
+            was_run.should be_true
+        end
     end
 end
 
 describe RotatorDsl do
+    include Runt
     attr_reader :rotator
     before do
         @rotator = Rotator.new :son, ''
@@ -107,6 +171,29 @@ describe RotatorDsl do
         end
         rotator.number_to_keep.should == 31
     end
+    
+    it "can configure the day it should run" do
+        RotatorDsl.configure(rotator) do
+            on_each last_friday
+        end
+        rotator.should_run_on?(Date.parse("30-07-2010")).should be_true
+    end
+    
+    it "can use a customized runt expression for the day it should run" do
+        RotatorDsl.configure(rotator) do
+            on_each Runt::REYear.new(1) & first_monday
+        end
+        rotator.should_run_on?(Date.parse("05-01-2009")).should be_true
+    end
+
+    it "can use a first_monday_in_january" do
+        RotatorDsl.configure(rotator) do
+            on_each first_monday_in_january
+        end
+        rotator.should_run_on?(Date.parse("05-01-2009")).should be_true
+        rotator.should_run_on?(Date.parse("02-02-2009")).should be_false
+    end
+    
 end
 
 require 'backup'

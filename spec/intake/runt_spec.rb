@@ -1,5 +1,5 @@
 require 'spec_helper'
-require 'runt'
+require 'runt_ext'
 
 include Runt
 
@@ -39,9 +39,25 @@ describe "run expressions" do
     it "can give me the first specific weekday of the year with sugar" do
         first_day = REYear.new(1) & first_monday
         first_day.should be_include Date.parse("04-01-2010")
+        first_day.should_not be_include Date.parse("01-02-2010")
         first_day.should be_include Date.parse("05-01-2009")
         first_day.should be_include Date.parse("07-01-2008")
         first_day.should be_include Date.parse("03-01-2011")
     end
-    
+
+    it "can give me the first specific weekday of the year with sugar" do
+        first_day = first_monday_in_january
+        first_day.should be_include Date.parse("04-01-2010")
+        first_day.should_not be_include Date.parse("01-02-2010")
+        first_day.should be_include Date.parse("05-01-2009")
+        first_day.should be_include Date.parse("07-01-2008")
+        first_day.should be_include Date.parse("03-01-2011")
+    end
+
+    it "complains about illegal month" do
+        lambda {
+            first_monday_in_garble
+            }.should raise_exception("garble is not a valid month")
+    end
+
 end

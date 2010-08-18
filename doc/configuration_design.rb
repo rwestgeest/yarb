@@ -18,18 +18,20 @@ backup do
         send_mail :success_mail 
     end
 
-    son do
-        keep 31
-    end
-    
-    father do
-        on_each last_friday
-        keep 12
-    end
-    
-    grandfather do
-        on_each REYear.new(1) & first_sunday
-        keep 5
+    delivery do
+        son do
+            keep 31
+        end
+        
+        father do
+            on_each last_friday
+            keep 12
+        end
+        
+        grandfather do
+            on_each REYear.new(1) & first_sunday
+            keep 5
+        end
     end
 end
 
