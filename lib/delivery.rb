@@ -34,30 +34,23 @@ class Delivery
         @rotators[backup_name].creates_a?(backup_name)
     end
 
-    def target_filename(archivename)
-        if @rotators.empty?
-            raise DeliveryException.new("no rotators defined, don't know how to determing target filename")
-        end
-        
-        appropriate_rotator do |rotator|
-            return rotator.target_filename(archivename)
-        end
+    def working_archive_file(archive_name)
+        "#{archive_name}_#{Date.today.strftime('%Y-%m-%d')}.tgz"
     end
 
-    def deliver(file, directory)
+    def deliver(archive_name, directory)
         if @rotators.empty?
             raise DeliveryException.new("no rotators defined, don't know how to deliver")
         end
-        
-        appropriate_rotator do |rotator|
-            rotator.execute(file, directory)
+        appropriate_rotator(archive_name, directory) do |rotator|
+            rotator.execute(working_archive_file(archive_name), archive_name, directory)
         end
     end
 
     private 
-    def appropriate_rotator &block
+    def appropriate_rotator(archive_name, directory, &block)
         [:grandfather, :father, :son].each do |rotator_name|
-            return yield(@rotators[rotator_name]) if @rotators[rotator_name].should_be_used?
+            return yield(@rotators[rotator_name]) if @rotators[rotator_name].should_be_used?(archive_name, directory)
         end
     end
 end
@@ -86,7 +79,7 @@ class Rotator
         @name || @kind 
     end
     
-    def should_be_used?(date = Date.today)
+    def should_be_used?(archive_name, destination, date = Date.today)
         return true unless @should_run_on_each
         @should_run_on_each.include?(date)
     end
@@ -95,12 +88,12 @@ class Rotator
         @should_run_on_each = runt_spec
     end
     
-    def target_filename(archive_name)
+    def destination_archive_file(archive_name)
         [base_name(archive_name), Date.today.strftime('%Y-%m-%d')].join('_') + '.tgz'
     end
     
-    def execute(archive_name, destination)
-        @shell.move(target_filename(archive_name), "#{destination}/")
+    def execute(working_archive_file, archive_name, destination)
+        @shell.move(working_archive_file, "#{destination}/#{destination_archive_file(archive_name)}")
         if (number_to_keep > 0)
             filelist = @shell.ordered_list("#{destination}/#{base_name(archive_name)}*") 
             while filelist.size > number_to_keep
@@ -119,7 +112,7 @@ class Rotator
             super('null','null')
         end
         
-        def should_be_used?
+        def should_be_used?(archive_name, destination)
             false 
         end
         def execute(source, destination)

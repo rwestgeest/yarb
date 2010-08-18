@@ -11,7 +11,7 @@ describe Archive do
             @archive = Archive.new('my_archive', mock_delivery, mock_shell_runner)
             archive.add_file 'filename1'
             archive.destination = '/some/directory'
-            mock_delivery.stub!(:target_filename).with('my_archive').and_return('generated_filename.tgz')            
+            mock_delivery.stub!(:working_archive_file).with('my_archive').and_return('generated_filename.tgz')            
             @generated_filepath = 'generated_filename.tgz'
         end
         
@@ -35,11 +35,13 @@ describe Archive do
                 archive.add_command command
                 mock_delivery.stub!(:deliver) # tested above
             end
+            
             it "adds a result of a command to the tar" do
                 command.should_receive(:run).and_return 'command_result.txt'
                 mock_shell_runner.should_receive(:run_command).with("tar cvzf #{generated_filepath} filename1 command_result.txt")
                 archive.run 
             end
+            
             it "supports more commands in this" do
                 command2 = mock 'command'
                 archive.add_command(command2)

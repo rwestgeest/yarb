@@ -35,7 +35,7 @@ class Archive
     end
     
     def tar
-        @delivery.target_filename(name)
+        @delivery.working_archive_file(name)
     end
     
     def input_files
