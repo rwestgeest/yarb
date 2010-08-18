@@ -1,5 +1,5 @@
 -----------------------------------------------------------------------------------------------------------
-Release:  10333-Uitgangspositie10301-Uitgangspositie
+Release:  10333-FirstRelease
 Summary:
     run backup containing series of archives containing files and possible postgres database dumps
     delivers using grandfather, father, son strategy
