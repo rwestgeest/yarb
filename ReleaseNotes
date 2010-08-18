@@ -1,3 +1,30 @@
+-----------------------------------------------------------------------------------------------------------
+Release:  10333-Uitgangspositie10301-Uitgangspositie
+Summary:
+    run backup containing series of archives containing files and possible postgres database dumps
+    delivers using grandfather, father, son strategy
+
+r24 2010-08-18 added integration tests and added syntactic sugar for some first day in a year
+r23 2010-08-18 does grandfather and father always when does not exist yet
+r22 2010-08-18 got conditions to make sure a father or a grandfather always runs when it is not present yet
+r21 2010-08-17 added string extensions for 1.8.6 compatibility
+r20 2010-08-04 added string_ext for 1.8.6 compatibility
+r19 2010-08-04 added parenteses to skip warning
+r18 2010-08-04 added  example recipe
+r17 2010-08-03 rotate actually removes files
+r16 2010-08-02 added rotation on number to keep
+r15 2010-08-02 added possibility for postgres_dump
+r14 2010-08-01 added fileutils include
+r13 2010-08-01 some cleanups
+r12 2010-08-01 changed the delivery name to a better format
+r11 2010-07-31 moved delivery to its own class
+r10 2010-07-31 moved rotator to delivery
+r9 2010-07-31 first working tarring backup
+r8 2010-07-30 backups go in temp dir first and then are rotates
+r7 2010-07-30 archive can be run
+r6 2010-07-30 backup and mail configuration
+r5 2010-07-26 updated releasenotes
+r3 2010-07-26 updated releasenotes
 
 -----------------------------------------------------------------------------------------------------------
 Release:  10301-Uitgangspositie10301-Uitgangspositie
