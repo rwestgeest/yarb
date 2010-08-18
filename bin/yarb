@@ -35,6 +35,11 @@ end
 rest = parser.parse ARGV
 usage(parser) unless recipe_file
 
+begin
 recipe = BackupConfiguration.from_file(recipe_file)  
 backup = recipe.backup
 backup.run
+rescue RuntimeError => e
+    $stderr.puts e
+    exit 255
+end

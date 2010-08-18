@@ -20,6 +20,15 @@ describe Backup do
             backup.run.should == 0
         end
         
+        it "runs multiple archive tasks and returns 0" do
+            working_dir.should_receive(:in).and_yield
+            archive2 = mock 'archive2'
+            backup.add_archive(archive2)                        
+            archive.should_receive(:run).with(no_args)
+            archive2.should_receive(:run).with(no_args)
+            backup.run.should == 0
+        end
+        
         it "should return 1 when archive raises an error" do
             working_dir.should_receive(:in).and_yield
             archive.should_receive(:run).and_raise 'some exception'

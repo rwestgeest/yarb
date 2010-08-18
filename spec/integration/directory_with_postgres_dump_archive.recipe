@@ -1,0 +1,18 @@
+$: << 'spec'
+require 'spec_helper'
+backup do 
+    archive 'simple_tar' do
+        file input_file('mydir')
+        
+        postgres_database 'my_database' do
+            sudo_as 'postgres'
+        end
+        
+        destination output_file('destination') 
+    end
+    
+    delivery do
+        son 'daily'
+    end
+end
+

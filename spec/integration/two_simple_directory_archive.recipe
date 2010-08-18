@@ -1,0 +1,19 @@
+$: << 'spec'
+require 'spec_helper'
+backup do 
+    archive 'first_tar' do
+        file input_file('mydir/file1')
+        destination output_file('destination') 
+    end
+    
+    archive 'second_tar' do
+        file input_file('mydir/file2')
+        destination output_file('destination') 
+    end
+    
+    delivery do
+        son 'daily' do
+            keep 30
+        end
+    end
+end

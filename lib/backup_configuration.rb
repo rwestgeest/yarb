@@ -12,7 +12,11 @@ class BackupConfiguration
     attr_writer :mail_config
     
     def self.from_file(recipe_filename)
-        self.from_string(File.read(recipe_filename))
+        begin
+            self.from_string(File.read(recipe_filename))
+        rescue Errno::ENOENT
+            raise "recipe file #{recipe_filename} not found"
+        end
     end
     
     def self.from_string(recipe_description)

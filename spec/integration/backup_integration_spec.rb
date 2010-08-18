@@ -5,16 +5,13 @@ include FileUtils
 
 describe 'backups' do
     
-    def tar_list
-        expected_tar = output_file "destination/simple_tar_daily_#{Date.today.strftime('%Y-%m-%d')}.tgz"
+    def tar_list(name)
+        expected_tar = output_file "destination/#{name}_#{Date.today.strftime('%Y-%m-%d')}.tgz"
         return 'output tar not present' unless File.exists?(expected_tar)
         `tar tvzf #{expected_tar}`
     end
         
     def run_backup recipe_file
-#        recipe = BackupConfiguration.from_file(File.join(File.dirname(__FILE__),recipe_file))  
-#        backup = recipe.backup
-#        backup.run
         system "#{File.join(PROJECT_ROOT, 'bin', 'yarb')} --recipe #{File.join(File.dirname(__FILE__),recipe_file)} >> /dev/null"
     end    
     
@@ -31,11 +28,49 @@ describe 'backups' do
     end
     
     it "can make a simple directory backup" do
-    #    pending 'waiting for backup runner to run'
         result = run_backup 'simple_directory_archive.recipe'
         result.should be_true, 'backup should be succesful'
-        tar_list.should include 'mydir/file1' 
-        tar_list.should include 'mydir/file2' 
+        tar_list('simple_tar_daily').should include 'mydir/file1' 
+        tar_list('simple_tar_daily').should include 'mydir/file2' 
     end
     
+    it "can make two simple directory backups" do
+        result = run_backup 'two_simple_directory_archive.recipe'
+        result.should be_true, 'backup should be succesful'
+        tar_list('first_tar_daily').should include 'mydir/file1' 
+        tar_list('second_tar_daily').should include 'mydir/file2' 
+    end
+    
+    it "will make yearly first, then monthly, then daily" do
+        run_backup('simple_gfs_archive.recipe').should be_true, 'backup should be successful'
+        tar_list('simple_tar_yearly').should include 'mydir/file1' 
+        tar_list('simple_tar_weekly').should == 'output tar not present'
+        tar_list('simple_tar_daily').should == 'output tar not present'
+
+        run_backup('simple_gfs_archive.recipe').should be_true, 'backup should be successful'
+        tar_list('simple_tar_yearly').should include 'mydir/file1' 
+        tar_list('simple_tar_weekly').should include 'mydir/file1' 
+        tar_list('simple_tar_daily').should == 'output tar not present'
+
+        run_backup('simple_gfs_archive.recipe').should be_true, 'backup should be successful'
+        tar_list('simple_tar_yearly').should include 'mydir/file1' 
+        tar_list('simple_tar_weekly').should include 'mydir/file1' 
+        tar_list('simple_tar_daily').should include 'mydir/file1' 
+    end
+
+    describe 'with postgres database' do
+        before do
+            system 'sudo -u postgres createdb my_database'
+        end
+        after do
+            system 'sudo -u postgres dropdb my_database'
+        end
+        it "can include a postgres dump in the archive" do
+            result = run_backup 'directory_with_postgres_dump_archive.recipe'
+            result.should be_true, 'backup should be succesful'
+            tar_list('simple_tar_daily').should include 'mydir/file1' 
+            tar_list('simple_tar_daily').should include 'my_database_postgres.dump' 
+        end
+    end
+
 end

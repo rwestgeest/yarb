@@ -1,0 +1,21 @@
+$: << 'spec'
+require 'spec_helper'
+backup do 
+    archive 'simple_tar' do
+        file input_file('mydir')
+        destination output_file('destination') 
+    end
+    
+    delivery do
+        son 'daily' do
+        end
+        father 'weekly' do
+            on_each last_friday
+        end
+        grandfather 'yearly' do
+            on_each first_monday_in_january
+        end
+    end
+end
+
+
