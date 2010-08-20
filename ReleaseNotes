@@ -1,5 +1,5 @@
 -----------------------------------------------------------------------------------------------------------
-Release:  10333-MysqlDumpAndCustomCommand
+Release:  10335-MysqlDumpAndCustomCommand
 Summary: added MysqlDump
          added Custom command
          improved error handling of recipes
