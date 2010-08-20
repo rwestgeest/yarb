@@ -24,12 +24,51 @@ backup do
         files '/etc', '/var/www'
         file '/home/rob'
         
-        # executes 'pg_dump --no-acl some_db > some_db.dump'
-        # and adds some_db.dump as file in the root of the archive
+        # executes 'pg_dump --no-acl some_db > some_db_postgres.dump'
+        # and adds some_db_postgres.dump as file in the root of the archive
         postgres_database 'some_db' do
+            # prepends 'sudo -u postgres' to the command
             sudo 'postgres'
+            
+            # use this to add options to --no-acl
+            # command becomes : 'pg_dump --no-acl --data-only some_db > some_db_postgres.dump' 
+            extra_options '--data-only' 
+            
+            # use this to override options i.e. replace all options with these
+            # command becomes : 'pg_dump -s -S some_db > some_db_postgres.dump' 
+            override_options '-s -S'
+        end
+
+        # executes 'mysqldump some_db > some_db_mysql.dump'
+        # and adds some_db_mysql.dump as file in the root of the archive
+        postgres_database 'some_db' do
+            # prepends 'sudo -u root' to the command
+            sudo 'root'
+            
+            # uses user and password to connect to the database
+            # command becomes : 'mysqldump -u marc --password=secret some_db > some_db_mysql.dump'
+            user 'marc' 
+            password 'secret' 
+            
+            # use this to add options to possible user and password options
+            # command becomes : 'mysql -u marc --password=secret --compact some_db > some_db_mysql.dump' 
+            extra_options '--compact' 
+            
+            # use this to override options i.e. replace all options with these
+            # command becomes : 'mysql --compact some_db > some_db_mysql.dump' 
+            override_options '--compact'
         end
          
+        # executes 'iptables -L > iptables_status.out'
+        # and adds some_db_mysql.dump as file in the root of the archive
+        system_command 'iptables_status' do
+            # prepends 'sudo -u admin' to the command
+            sudo 'admin'
+
+            # this is the command 
+            run 'iptables =-L' 
+        end
+        
         # this is where the deliveries are made (using the delivery strategy below
         destination '/some_path'
     end
