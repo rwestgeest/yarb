@@ -5,9 +5,10 @@ def error(message)
   exit 1
 end
 
-tag = Yarb::VERSION + '_' + ARGV[0]
+tag = ARGV[0]
 
 error("no tag supplied") if tag.nil? 
+tag = Yarb::VERSION + '_' + tag
 
 answer='-'
 while not ["yes", "no"].include?(answer) do
