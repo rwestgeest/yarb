@@ -1,4 +1,14 @@
 -----------------------------------------------------------------------------------------------------------
+Release:  10333-MysqlDumpAndCustomCommand
+Summary: added MysqlDump
+         added Custom command
+         improved error handling of recipes
+
+r30 2010-08-20 updated example recipe documentation
+r29 2010-08-20 added mysql dump - improved error handling
+r28 2010-08-18 create d readme
+
+-----------------------------------------------------------------------------------------------------------
 Release:  10333-FirstRelease
 Summary:
     run backup containing series of archives containing files and possible postgres database dumps
