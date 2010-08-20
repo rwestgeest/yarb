@@ -25,6 +25,11 @@ def end_with(substring)
     simple_matcher("to end with #{substring}") {|given| given.end_with?(substring)}
 end
 
+def run(command)
+    simple_matcher("to run #{command}") {|given| given.runs?(command)}
+end
+
+
 def clean_input
     return unless File.exists? input_dir  
     rm_r input_dir

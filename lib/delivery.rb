@@ -61,6 +61,7 @@ end
 
 require 'date'
 class Rotator
+    attr_reader :kind
     attr_writer :name
     attr_accessor :number_to_keep
    

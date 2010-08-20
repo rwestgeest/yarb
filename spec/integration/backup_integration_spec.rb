@@ -69,5 +69,26 @@ describe 'backups' do
             system('sudo -u postgres dropdb my_yarb_database')
         end
     end
+    
+    describe 'with mysql database' do
+        it "can include a mysql dump in the archive" do
+            pending "you might not want to create a mysql database - enable this spec if you do"
+            system('mysqladmin -u root --password=stoomboot create my_yarb_database')
+            result = run_backup 'directory_with_mysql_dump_archive.recipe'
+            result.should be_true, 'backup should be succesful'
+            tar_list('simple_tar_daily').should include 'mydir/file1' 
+            tar_list('simple_tar_daily').should include 'my_database_mysql.dump' 
+            system('mysqladmin -f -u root --password=stoomboot drop my_yarb_database')
+        end
+    end
+
+    describe 'with cusom command' do
+        it "can include the result of a custom command in the archive" do
+            result = run_backup 'directory_with_custom_command_archive.recipe'
+            result.should be_true, 'backup should be succesful'
+            tar_list('simple_tar_daily').should include 'mydir/file1' 
+            tar_list('simple_tar_daily').should include 'my_command.out' 
+        end
+    end
 
 end

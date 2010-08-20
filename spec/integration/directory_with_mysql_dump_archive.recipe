@@ -1,0 +1,19 @@
+$: << 'spec'
+require 'spec_helper'
+backup do 
+    archive 'simple_tar' do
+        file input_file('mydir')
+        
+        mysql_database 'my_database' do
+            user 'root'
+            password 'stoomboot'
+        end
+        
+        destination output_file('destination') 
+    end
+    
+    delivery do
+        son 'daily'
+    end
+end
+

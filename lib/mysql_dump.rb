@@ -1,24 +1,24 @@
 require 'shell_runner'
 require 'database_dump'
 
-class PostgresDump < DatabaseDump
- 
+class MysqlDump < DatabaseDump
+    attr_accessor :username, :password 
+    
     protected 
     def dump_command_name
-        'pg_dump'
+        'mysqldump'
     end
-    
-    private
- 
+
     def command_options 
         return @options_override if @options_override
         options = []
-        options << '--no-acl'
+        options << '-u' << @username if @username
+        options << "--password=#{@password}" if @password
         options.empty? ? nil : options.join(' ')
     end 
     
     def target_filename
-        "#{database_name}_postgres.dump"
+        "#{database_name}_mysql.dump"
     end
 end
 

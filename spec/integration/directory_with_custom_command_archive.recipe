@@ -1,0 +1,20 @@
+$: << 'spec'
+require 'spec_helper'
+backup do 
+    archive 'simple_tar' do
+        file input_file('mydir')
+        
+        # result of system command is assumed to be in 'my_command.out'
+        system_command 'my_command' do
+            # run sends its output to 'my_command.out'
+            run 'ls /'
+        end
+        
+        destination output_file('destination') 
+    end
+    
+    delivery do
+        son 'daily'
+    end
+end
+

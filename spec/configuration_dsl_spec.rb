@@ -2,11 +2,25 @@ require 'spec_helper'
 require 'configuration_dsl'
 
 require 'backup_configuration'
+
+shared_examples_for 'a dsl block checking for illegal entries' do
+    it "reports name error" do
+        begin
+            dsl.configure(@configuration_item) do 
+                blah
+            end
+        rescue ConfigurationSyntaxError => e
+            e.message.should include("can't configure 'blah' in #{@block_name}")
+        end
+    end
+end
+
 describe MainDsl do 
     attr_reader :config
     
     before do
-        @config = BackupConfiguration.new
+        @configuration_item = @config = BackupConfiguration.new
+        @block_name = 'recipe'
     end    
     
     it "has no backup nor mail initially" do 
@@ -21,10 +35,16 @@ describe MainDsl do
     end
     
     it "can add a backup to the configuration" do
-        MainDsl.configure(config) do
+        dsl.configure(config) do
             backup {}
         end
         config.backup.should_not be_nil
+    end
+    
+    it_should_behave_like 'a dsl block checking for illegal entries'
+    
+    def dsl 
+        MainDsl
     end
 end
 
@@ -32,7 +52,14 @@ require 'backup'
 describe BackupDsl do
     attr_reader :backup
     before do
-        @backup = Backup.new nil
+        @configuration_item = @backup = Backup.new(nil)
+        @block_name = 'backup'
+    end
+    
+    it_should_behave_like 'a dsl block checking for illegal entries'
+    
+    def dsl 
+        BackupDsl
     end
     
     describe "adding an archive" do
@@ -74,8 +101,16 @@ end
 describe DeliveryDsl do
     attr_reader :delivery 
     before do 
-        @delivery = Delivery.new
+        @configuration_item = @delivery = Delivery.new
+        @block_name = 'delivery'
     end
+    
+    it_should_behave_like 'a dsl block checking for illegal entries'
+    
+    def dsl 
+        DeliveryDsl
+    end
+    
     describe 'configure son' do
         it "adds a son to delivery" do
             DeliveryDsl.configure(delivery) do
@@ -157,8 +192,16 @@ describe RotatorDsl do
     include Runt
     attr_reader :rotator
     before do
-        @rotator = Rotator.new :son, ''
+        @configuration_item = @rotator = Rotator.new(:son, 'son')
+        @block_name = 'son'
     end
+    
+    it_should_behave_like 'a dsl block checking for illegal entries'
+    
+    def dsl 
+        RotatorDsl
+    end
+    
     it "can configure the name in the block" do
         RotatorDsl.configure(rotator) do
             name 'daily'
@@ -200,8 +243,16 @@ require 'backup'
 describe ArchiveDsl do 
     attr_reader :archive
     before do
-        @archive = Archive.new 'some tar', nil
+        @configuration_item = @archive = Archive.new('some tar', nil)
+        @block_name = 'some tar'
     end
+    
+    it_should_behave_like 'a dsl block checking for illegal entries'
+    
+    def dsl 
+        ArchiveDsl
+    end
+    
     it "has no files initially" do
         ArchiveDsl.configure(archive) do
         end
@@ -246,10 +297,119 @@ describe ArchiveDsl do
         end
         archive.should have(1).commands
         postgres_dump = archive.commands.first
-        postgres_dump.database_name.should == 'database_name'
         postgres_dump.sudo_user.should == 'gijs'
     end
+    
+    it "can add a mysql_database" do
+        ArchiveDsl.configure(archive) do
+            mysql_database('database_name') { sudo_as 'gijs'}
+        end
+        archive.should have(1).commands
+        mysql_dump = archive.commands.first
+        mysql_dump.sudo_user.should == 'gijs'
+    end
+    
+    it "can add a system command" do
+        ArchiveDsl.configure(archive) do
+            system_command('command_name') { run 'some_command'}
+        end
+        archive.should have(1).commands
+        command = archive.commands.first
+        command.should run('some_command')
+    end
 
+end
+
+shared_examples_for 'abstract command dsl' do
+    it_should_behave_like 'a dsl block checking for illegal entries'
+    
+    it "can configure a sudo user" do
+        dsl.configure(command) do
+            sudo_as 'gijs'
+        end 
+        command.sudo_user.should == 'gijs'
+    end
+end
+
+shared_examples_for 'database dump dsl' do
+    before do
+        @block_name = dump.database_name
+        @configuration_item = dump
+    end
+
+    it_should_behave_like 'abstract command dsl' 
+    def command
+        dump
+    end
+    it "has a name" do
+        dump.database_name.should == 'database_name'
+    end
+    it "can configure extra options" do
+        dsl.configure(dump) do
+            extra_options '--blah'
+        end 
+        dump.extra_options.should == '--blah'
+    end
+    it "can configure overridden options" do
+        dsl.configure(dump) do
+            override_options '--blah'
+        end 
+        dump.options_override.should == '--blah'
+    end
+end
+
+describe PostgresDumpDsl do
+    it_should_behave_like 'database dump dsl'
+    def dsl
+        PostgresDumpDsl
+    end
+    def dump
+        @dump ||= PostgresDump.new('database_name')
+    end
+    
+end
+
+describe MysqlDumpDsl do
+    it_should_behave_like 'database dump dsl'
+
+    it "can configure username and password" do
+        dsl.configure(dump) do
+            user 'harry'
+            password 'secret'
+        end 
+        dump.username.should == 'harry'
+        dump.password.should == 'secret'
+    end
+
+    def dsl
+        MysqlDumpDsl
+    end
+    def dump
+        @dump ||= MysqlDump.new('database_name')
+    end
+end
+
+describe SystemCommandDsl do
+    before do
+        @configuration_item = command
+        @block_name = command.name
+    end
+    it_should_behave_like 'abstract command dsl' 
+    
+    it "can configure a command_line" do
+        dsl.configure(command) do
+            run 'command_line'
+        end 
+        command.should run('command_line')
+    end
+    
+    def dsl
+        SystemCommandDsl
+    end
+    
+    def command
+        @command ||= SystemCommand.new('command_name')
+    end
 end
 
 require 'mail_message'

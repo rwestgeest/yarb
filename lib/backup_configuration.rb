@@ -13,20 +13,26 @@ class BackupConfiguration
     
     def self.from_file(recipe_filename)
         begin
-            self.from_string(File.read(recipe_filename))
+            self.from_string(File.read(recipe_filename), recipe_filename)
         rescue Errno::ENOENT
             raise "recipe file #{recipe_filename} not found"
         end
     end
     
-    def self.from_string(recipe_description)
+    def self.from_string(recipe_description, filename = '')
         recipe = new 
-        recipe.from_string(recipe_description)
+        recipe.from_string(recipe_description, filename)
         recipe
     end
 
-    def from_string(recipe_description)
-        MainDsl.configure(self, recipe_description)
+    def from_string(recipe_description, filename = '')
+        begin
+            MainDsl.configure(self, recipe_description, filename)
+        rescue ConfigurationSyntaxError => e
+            raise ConfigurationSyntaxError.new("in #{filename}: #{e}")
+        rescue SyntaxError => e
+            raise ConfigurationSyntaxError.new("in #{filename}: #{e}")
+        end
     end 
     
     def mail(mail_id)

@@ -43,5 +43,35 @@ describe BackupConfiguration do
             end
         end
     end
+    
+    describe 'errors in specification' do
+        it "reports a syntax error" do
+            begin
+                config = BackupConfiguration.from_string %Q{
+                    backup do 
+                        end
+                    end
+                }, 'source_file'
+            rescue ConfigurationSyntaxError => e
+                e.message.should include('source_file') 
+                e.message.should include('syntax error')
+            end
+        end
+        it "reports name error" do
+            begin
+                config = BackupConfiguration.from_string %Q{
+                    backup do 
+                        blah
+                    end
+                }, 'source_file'
+            rescue ConfigurationSyntaxError => e
+                puts e
+                e.message.should include('source_file') 
+                e.message.should include('blah')
+            end
+        end
+
+    end
+
 end
 

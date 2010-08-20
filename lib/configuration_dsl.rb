@@ -1,15 +1,31 @@
+class ConfigurationSyntaxError < Exception
+end 
 
-class MainDsl
-    def self.configure(backup_configuration, configuration_string=nil, &configuration_block) 
-        dsl = MainDsl.new(backup_configuration)
-        if configuration_string 
-            dsl.instance_eval configuration_string
-        else
-            dsl.instance_eval &configuration_block
-        end
+class Dsl
+    def initialize(block_name)
+        @block_name = block_name
+    end
+    def configure(configuration_string=nil, configuration_filename = '', &configuration_block) 
+        begin 
+            if configuration_string 
+                instance_eval configuration_string, configuration_filename
+            else
+                instance_eval &configuration_block
+            end
+        rescue NameError => e
+            raise ConfigurationSyntaxError.new("can't configure '#{e.name}' in #{@block_name}")
+        end 
+    end
+end
+
+class MainDsl < Dsl
+    def self.configure(backup_configuration, configuration_string=nil, configuration_filename = '', &configuration_block) 
+        dsl = MainDsl.new('recipe', backup_configuration)
+        dsl.configure(configuration_string, configuration_filename, &configuration_block)
     end 
     
-    def initialize(backup_recipe)
+    def initialize(block_name, backup_recipe)
+        super(block_name)
         @backup_recipe = backup_recipe
     end
     
@@ -28,12 +44,13 @@ end
 
 require 'archive'
 require 'delivery'
-class BackupDsl
+class BackupDsl < Dsl
     def self.configure(backup, &configuration_block)
-        self.new(backup).instance_eval(&configuration_block)
+        self.new('backup', backup).configure(&configuration_block)
     end
     
-    def initialize(backup)
+    def initialize(block_name, backup)
+        super(block_name)
         @backup = backup
     end
     
@@ -50,12 +67,13 @@ end
     
 require 'delivery'
 require 'runt'
-class DeliveryDsl
+class DeliveryDsl < Dsl
     def self.configure(delivery, &configuration_block)
-        self.new(delivery).instance_eval(&configuration_block)
+        self.new('delivery', delivery).configure(&configuration_block)
     end
     
-    def initialize(delivery)
+    def initialize(block_name, delivery)
+        super(block_name)
         @delivery = delivery
     end
     def son(name = nil, &configuration_block)
@@ -76,15 +94,16 @@ class DeliveryDsl
     end
 end
 
-class RotatorDsl 
+class RotatorDsl < Dsl
     include Runt
     def self.configure(rotator, &configuration_block) 
-        instance = new(rotator)
-        instance.instance_eval &configuration_block if block_given?
+        instance = new(rotator.name, rotator)
+        instance.configure &configuration_block if block_given?
         return instance
     end
     
-    def initialize(rotator)
+    def initialize(block_name, rotator)
+        super(block_name)
         @rotator = rotator
     end
 
@@ -102,11 +121,14 @@ class RotatorDsl
 end
 
 require 'postgres_dump'
-class ArchiveDsl
+require 'mysql_dump'
+require 'system_command'
+class ArchiveDsl < Dsl
     def self.configure(archive, &configuration_block)
-        new(archive).instance_eval &configuration_block
+        new(archive.name, archive).configure &configuration_block
     end
-    def initialize(archive)
+    def initialize(block_name, archive)
+        super(block_name)
         @archive = archive
     end
     def file(filename)
@@ -124,17 +146,71 @@ class ArchiveDsl
         PostgresDumpDsl.configure(database_dump, &configuration_block)
         @archive.add_command database_dump
     end
+    
+    def mysql_database(name, &configuration_block)
+        database_dump = MysqlDump.new(name)
+        MysqlDumpDsl.configure(database_dump, &configuration_block)
+        @archive.add_command database_dump
+    end
+    
+    def system_command(name, &configuration_block)
+        command = SystemCommand.new(name)
+        SystemCommandDsl.configure(command, &configuration_block)
+        @archive.add_command command
+    end
+
 end
 
-class PostgresDumpDsl
-    def self.configure(database_dump, &configuration_block)
-        new(database_dump).instance_eval &configuration_block
-    end
+class DatabaseDumpDsl < Dsl
     def initialize(database_dump)
+        super(database_dump.database_name)
         @database_dump = database_dump
     end
     def sudo_as(username)
         @database_dump.sudo_as_user(username)
+    end
+    def extra_options(options)
+        @database_dump.extra_options= options
+    end
+    def override_options(options)
+        @database_dump.options_override= options
+    end
+end
+
+class PostgresDumpDsl < DatabaseDumpDsl
+    def self.configure(database_dump, &configuration_block)
+        new(database_dump).configure &configuration_block
+    end
+end
+
+class MysqlDumpDsl < DatabaseDumpDsl
+    def self.configure(database_dump, &configuration_block)
+        new(database_dump).configure &configuration_block
+    end
+    
+    def user(username)
+        @database_dump.username = username
+    end
+    
+    def password(password)
+        @database_dump.password = password
+    end
+end
+
+
+class SystemCommandDsl < Dsl
+    def self.configure(command, &configuration_block)
+        new(command.name, command).configure &configuration_block
+    end
+    def initialize(block_name, command)
+        super(block_name)
+        @command = command
+    end
+    def sudo_as(username)
+        @command.sudo_as_user(username)
+    end
+    def run(command_line)
+        @command.command_line = command_line
     end
 end
 

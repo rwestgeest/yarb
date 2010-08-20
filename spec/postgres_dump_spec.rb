@@ -20,11 +20,27 @@ describe PostgresDump do
             shell_runner.should_receive(:run_command).with('sudo -u some_user pg_dump --no-acl database_name > database_name_postgres.dump')
             postgres_dump.run
         end
+        
+        it "accepts overridden options" do
+            postgres_dump.options_override = "--some_options"
+            shell_runner.should_receive(:run_command).with('pg_dump --some_options database_name > database_name_postgres.dump')
+            postgres_dump.run
+        end
+        
+        it "accepts extra options" do
+            postgres_dump.extra_options = "--some_options"
+            shell_runner.should_receive(:run_command).with('pg_dump --no-acl --some_options database_name > database_name_postgres.dump')
+            postgres_dump.run
+        end
+
+        
             
         it "returns the resulting filename" do
             shell_runner.stub(:run_command)
             postgres_dump.run.should == 'database_name_postgres.dump' 
-        end   
+        end 
+        
+          
     end
         
 end
