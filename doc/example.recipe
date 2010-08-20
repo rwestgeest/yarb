@@ -41,7 +41,7 @@ backup do
 
         # executes 'mysqldump some_db > some_db_mysql.dump'
         # and adds some_db_mysql.dump as file in the root of the archive
-        postgres_database 'some_db' do
+        mysql_database 'some_db' do
             # prepends 'sudo -u root' to the command
             sudo 'root'
             
