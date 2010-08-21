@@ -21,7 +21,7 @@ describe Delivery do
     describe 'deliver' do
         attr_reader :archive
         before do
-            @archive = Archive.new(nil,nil)
+            @archive = Archive.new(nil,nil,nil)
         end
 
         describe 'if no rotation strategy defined' do
@@ -90,18 +90,16 @@ require 'runt'
 include Runt
 
 describe BackupKind do
-    attr_reader :backup_kind, :shell
+    attr_reader :backup_kind
     
     before do
-        @shell = mock('shell')
-        @backup_kind = BackupKind.new('son',nil, shell)
+        @backup_kind = BackupKind.new('son',nil)
     end
     
     describe "execute" do
-        attr_reader :backup_kind, :archive, :shell
+        attr_reader :backup_kind, :archive
         before do
-            @shell = mock('shell')
-            @backup_kind = BackupKind.new('son', nil, shell)
+            @backup_kind = BackupKind.new('son', nil)
             @archive = mock('archive')
         end
         
@@ -117,7 +115,6 @@ describe BackupKind do
                 archive.should_receive(:remove_exceeding).with('son', 1) 
                 backup_kind.execute(archive).should be_true
             end
-            
         end
 
         describe " - given a delivery of this type has never happened" do

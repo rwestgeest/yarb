@@ -63,8 +63,7 @@ class BackupKind
         NullBackupKind.new
     end
      
-    def initialize(kind, name, shell  = ShellRunner.new)
-        @shell = shell
+    def initialize(kind, name)
         @kind = kind
         @name = name
         @number_to_keep = 0

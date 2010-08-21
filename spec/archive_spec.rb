@@ -11,7 +11,7 @@ describe Archive do
         
         before do
             @mock_delivery = mock
-            @archive = Archive.new('my_archive', mock_delivery)
+            @archive = Archive.new('my_archive', mock_delivery, nil)
             @archive.destination = 'destination'
         end
 

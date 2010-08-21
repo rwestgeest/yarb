@@ -1,3 +1,5 @@
+require 'shell_runner'
+
 class ConfigurationSyntaxError < Exception
 end 
 
@@ -19,8 +21,8 @@ class Dsl
 end
 
 class MainDsl < Dsl
-    def self.configure(backup_configuration, configuration_string=nil, configuration_filename = '', &configuration_block) 
-        dsl = MainDsl.new('recipe', backup_configuration)
+    def self.configure(backup_recipe, configuration_string=nil, configuration_filename = '', &configuration_block) 
+        dsl = MainDsl.new('recipe', backup_recipe)
         dsl.configure(configuration_string, configuration_filename, &configuration_block)
     end 
     
@@ -30,9 +32,8 @@ class MainDsl < Dsl
     end
     
     def backup(&configuration_block)
-        backup = Backup.new 
+        backup = @backup_recipe.create_backup 
         BackupDsl.configure(backup, &configuration_block)
-        @backup_recipe.backup = backup
     end
     
     def mail(&configuration_block)
@@ -55,9 +56,8 @@ class BackupDsl < Dsl
     end
     
     def archive(name, &configuration_block)
-        archive = Archive.new(name, @backup.delivery) 
+        archive = @backup.create_archive(name) 
         ArchiveDsl.configure(archive, &configuration_block) 
-        @backup.add_archive archive
     end
     
     def delivery(&configuration_block)
@@ -142,21 +142,18 @@ class ArchiveDsl < Dsl
     end
     
     def postgres_database(name, &configuration_block)
-        database_dump = PostgresDump.new(name)
+        database_dump = @archive.create_command(PostgresDump, name)
         PostgresDumpDsl.configure(database_dump, &configuration_block)
-        @archive.add_command database_dump
     end
     
     def mysql_database(name, &configuration_block)
-        database_dump = MysqlDump.new(name)
+        database_dump = @archive.create_command(MysqlDump, name)
         MysqlDumpDsl.configure(database_dump, &configuration_block)
-        @archive.add_command database_dump
     end
     
     def system_command(name, &configuration_block)
-        command = SystemCommand.new(name)
+        command = @archive.create_command(SystemCommand, name)
         SystemCommandDsl.configure(command, &configuration_block)
-        @archive.add_command command
     end
 
 end

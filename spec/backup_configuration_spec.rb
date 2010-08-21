@@ -35,7 +35,7 @@ describe BackupConfiguration do
                         end
                     end
                 }
-                config = BackupConfiguration.from_file 'filename'
+                config = BackupConfiguration.from_file 'filename', nil
                 
                 backup = config.backup
                 

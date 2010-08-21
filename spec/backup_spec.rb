@@ -10,7 +10,7 @@ describe Backup do
         before do 
             @working_dir = mock 'working dir'
             @archive = mock 'archive'
-            @backup = Backup.new working_dir
+            @backup = Backup.new nil, working_dir
             @backup.add_archive archive
         end
         

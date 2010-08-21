@@ -13,6 +13,10 @@ describe 'backups' do
         
     def run_backup recipe_file
         system "#{File.join(PROJECT_ROOT, 'bin', 'yarb')} --recipe #{File.join(File.dirname(__FILE__),recipe_file)} >> /dev/null"
+    end
+        
+    def test_backup recipe_file
+        `#{File.join(PROJECT_ROOT, 'bin', 'yarb')} --test --recipe #{File.join(File.dirname(__FILE__),recipe_file)}`
     end    
     
     before do
@@ -32,6 +36,12 @@ describe 'backups' do
         result.should be_true, 'backup should be succesful'
         tar_list('simple_tar_daily').should include 'mydir/file1' 
         tar_list('simple_tar_daily').should include 'mydir/file2' 
+    end
+
+    it "can show what it does" do
+        result = test_backup 'simple_directory_archive.recipe'
+        result.should include('tar cvzf simple_tar_daily')
+        result.should include('moving simple_tar_daily')
     end
     
     it "can make two simple directory backups" do

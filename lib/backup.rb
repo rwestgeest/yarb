@@ -3,17 +3,24 @@
 require 'date'
 require 'logger' 
 require 'yaml'
-
+require 'archive'
 require 'delivery'
 
 class Backup
     attr_reader :archives
     attr_reader :delivery
     
-    def initialize(working_dir = WorkingDir.new('/tmp/yarb'))
+    def initialize(shell, working_dir = WorkingDir.new('/tmp/yarb'))
         @working_dir = working_dir
         @delivery = Delivery.new
         @archives = []
+        @shell = shell
+    end
+    
+    def create_archive(name)
+        archive = Archive.new(name, delivery, @shell)
+        add_archive archive
+        return archive
     end
     
     def add_archive(archive)
@@ -31,7 +38,7 @@ class Backup
           #  puts e.backtrace
         rescue Exception => e
             puts "uh oh " + e
-          #  puts e.backtrace
+           # puts e.backtrace
         end
         return 1
     end

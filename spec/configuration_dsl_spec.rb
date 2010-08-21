@@ -19,7 +19,7 @@ describe MainDsl do
     attr_reader :config
     
     before do
-        @configuration_item = @config = BackupConfiguration.new
+        @configuration_item = @config = BackupConfiguration.new(nil)
         @block_name = 'recipe'
     end    
     
@@ -243,7 +243,7 @@ require 'backup'
 describe ArchiveDsl do 
     attr_reader :archive
     before do
-        @configuration_item = @archive = Archive.new('some tar', nil)
+        @configuration_item = @archive = Archive.new('some tar', nil, nil)
         @block_name = 'some tar'
     end
     
@@ -364,7 +364,7 @@ describe PostgresDumpDsl do
         PostgresDumpDsl
     end
     def dump
-        @dump ||= PostgresDump.new('database_name')
+        @dump ||= PostgresDump.new('database_name', nil)
     end
     
 end
@@ -385,7 +385,7 @@ describe MysqlDumpDsl do
         MysqlDumpDsl
     end
     def dump
-        @dump ||= MysqlDump.new('database_name')
+        @dump ||= MysqlDump.new('database_name', nil)
     end
 end
 
@@ -408,7 +408,7 @@ describe SystemCommandDsl do
     end
     
     def command
-        @command ||= SystemCommand.new('command_name')
+        @command ||= SystemCommand.new('command_name', nil)
     end
 end
 

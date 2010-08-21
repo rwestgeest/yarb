@@ -3,6 +3,7 @@ require 'rubygems'
 require 'optparse'
 $: << File.join(File.expand_path(File.dirname(__FILE__)),'..','lib')
 require 'backup'
+require 'shell_runner'
 require 'backup_configuration'
 require File.join(File.dirname(__FILE__),'..','yarb_version')
 USAGE_MESSAGE = %Q{
@@ -30,14 +31,16 @@ parser = OptionParser.new do |opts|
     opts.banner = USAGE_MESSAGE
     opts.on("-h", '--help', "show this message") { usage(parser) }
     opts.on("-v", '--version', "show version") { version }
+    opts.on("-t", '--test', "don't run - show what you'd do") { @test = true }
     opts.on("-r", '--recipe file', "use recipe (mandatory) - see doc/example.recipe for an example") { |file| recipe_file = file }
 end 
     
 rest = parser.parse ARGV
 usage(parser) unless recipe_file
 
+shell= @test && ShellLogger.new || ShellRunner.new
 begin
-recipe = BackupConfiguration.from_file(recipe_file)  
+recipe = BackupConfiguration.from_file(recipe_file, shell)  
 backup = recipe.backup
 backup.run
 rescue RuntimeError => e

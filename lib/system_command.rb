@@ -3,7 +3,7 @@ require 'abstract_command'
 class SystemCommand < AbstractCommand
     attr_accessor :command_line
     
-    def initialize(command_name, shell_runner = ShellRunner.new)
+    def initialize(command_name, shell_runner)
         super(shell_runner)
         @command_name = command_name
     end 

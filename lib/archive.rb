@@ -9,7 +9,7 @@ class Archive
     
     attr_reader :files, :name, :delivery, :commands
     attr_accessor :destination
-    def initialize(name, delivery, shell_runner = ShellRunner.new)
+    def initialize(name, delivery, shell_runner)
         @name = name
         @delivery = delivery
         @files = []
@@ -23,6 +23,12 @@ class Archive
     
     def add_files(*filenames)
         @files += filenames
+    end
+    
+    def create_command(command_class, name)
+        command = command_class.new(name, @shell_runner)
+        add_command command
+        return command
     end
     
     def add_command(command)

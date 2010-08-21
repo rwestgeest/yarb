@@ -4,7 +4,7 @@ class DatabaseDump < AbstractCommand
     attr_reader :database_name
     attr_accessor :options_override, :extra_options
     
-    def initialize(database_name, shell_runner = ShellRunner.new)
+    def initialize(database_name, shell_runner)
         super(shell_runner)
         @database_name = database_name
     end
