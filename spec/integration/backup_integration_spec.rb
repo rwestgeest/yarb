@@ -77,7 +77,7 @@ describe 'backups' do
             result = run_backup 'directory_with_mysql_dump_archive.recipe'
             result.should be_true, 'backup should be succesful'
             tar_list('simple_tar_daily').should include 'mydir/file1' 
-            tar_list('simple_tar_daily').should include 'my_database_mysql.dump' 
+            tar_list('simple_tar_daily').should include 'my_yarb_database_mysql.dump' 
             system('mysqladmin -f -u root --password=stoomboot drop my_yarb_database')
         end
     end

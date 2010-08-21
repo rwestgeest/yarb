@@ -77,46 +77,46 @@ class DeliveryDsl < Dsl
         @delivery = delivery
     end
     def son(name = nil, &configuration_block)
-        @delivery.son = configure_rotator('son',name, &configuration_block) 
+        @delivery.son = configure_backup_kind('son',name, &configuration_block) 
     end
     def father(name = nil, &configuration_block)
-        @delivery.father = configure_rotator('father',name, &configuration_block) 
+        @delivery.father = configure_backup_kind('father',name, &configuration_block) 
     end
     def grandfather(name = nil, &configuration_block)
-        @delivery.grandfather = configure_rotator('grandfather',name, &configuration_block) 
+        @delivery.grandfather = configure_backup_kind('grandfather',name, &configuration_block) 
     end
     
     private 
-    def configure_rotator(type, name, &configuration_block) 
-        backup_rotator = Rotator.new(type, name) 
-        RotatorDsl.configure(backup_rotator, &configuration_block)
-        return backup_rotator
+    def configure_backup_kind(type, name, &configuration_block) 
+        backup_backup_kind = BackupKind.new(type, name) 
+        BackupKindDsl.configure(backup_backup_kind, &configuration_block)
+        return backup_backup_kind
     end
 end
 
-class RotatorDsl < Dsl
+class BackupKindDsl < Dsl
     include Runt
-    def self.configure(rotator, &configuration_block) 
-        instance = new(rotator.name, rotator)
+    def self.configure(backup_kind, &configuration_block) 
+        instance = new(backup_kind.name, backup_kind)
         instance.configure &configuration_block if block_given?
         return instance
     end
     
-    def initialize(block_name, rotator)
+    def initialize(block_name, backup_kind)
         super(block_name)
-        @rotator = rotator
+        @backup_kind = backup_kind
     end
 
     def name(name)
-        @rotator.name = name
+        @backup_kind.name = name
     end
     
     def keep(amount)
-        @rotator.number_to_keep = amount
+        @backup_kind.number_to_keep = amount
     end
     
     def on_each(runt_expression)
-        @rotator.should_run_on_each(runt_expression)
+        @backup_kind.should_run_on_each(runt_expression)
     end
 end
 

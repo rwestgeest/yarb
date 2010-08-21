@@ -188,53 +188,53 @@ describe DeliveryDsl do
     end
 end
 
-describe RotatorDsl do
+describe BackupKindDsl do
     include Runt
-    attr_reader :rotator
+    attr_reader :backup_kind
     before do
-        @configuration_item = @rotator = Rotator.new(:son, 'son')
+        @configuration_item = @backup_kind = BackupKind.new(:son, 'son')
         @block_name = 'son'
     end
     
     it_should_behave_like 'a dsl block checking for illegal entries'
     
     def dsl 
-        RotatorDsl
+        BackupKindDsl
     end
     
     it "can configure the name in the block" do
-        RotatorDsl.configure(rotator) do
+        BackupKindDsl.configure(backup_kind) do
             name 'daily'
         end
-        rotator.name.should == 'daily'
+        backup_kind.name.should == 'daily'
     end
     it "can configure the number of backups to keep" do
-        RotatorDsl.configure(rotator) do
+        BackupKindDsl.configure(backup_kind) do
             keep 31
         end
-        rotator.number_to_keep.should == 31
+        backup_kind.number_to_keep.should == 31
     end
     
     it "can configure the day it should run" do
-        RotatorDsl.configure(rotator) do
+        BackupKindDsl.configure(backup_kind) do
             on_each last_friday
         end
-        rotator.should_run_on?(Date.parse("30-07-2010")).should be_true
+        backup_kind.should_run_on?(Date.parse("30-07-2010")).should be_true
     end
     
     it "can use a customized runt expression for the day it should run" do
-        RotatorDsl.configure(rotator) do
+        BackupKindDsl.configure(backup_kind) do
             on_each Runt::REYear.new(1) & first_monday
         end
-        rotator.should_run_on?(Date.parse("05-01-2009")).should be_true
+        backup_kind.should_run_on?(Date.parse("05-01-2009")).should be_true
     end
 
     it "can use a first_monday_in_january" do
-        RotatorDsl.configure(rotator) do
+        BackupKindDsl.configure(backup_kind) do
             on_each first_monday_in_january
         end
-        rotator.should_run_on?(Date.parse("05-01-2009")).should be_true
-        rotator.should_run_on?(Date.parse("02-02-2009")).should be_false
+        backup_kind.should_run_on?(Date.parse("05-01-2009")).should be_true
+        backup_kind.should_run_on?(Date.parse("02-02-2009")).should be_false
     end
     
 end

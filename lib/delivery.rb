@@ -5,68 +5,62 @@ class DeliveryException < Exception; end
 
 class Delivery
     def initialize
-        @rotators = {}
-        @rotators.default = Rotator.null_object
+        @backup_kinds = {}
+        @backup_kinds.default = BackupKind.null_object
     end
     
-    def add_rotator backup_name, rotator
-        @rotators[backup_name] = rotator
+    def add_backup_kind backup_name, backup_kind
+        @backup_kinds[backup_name] = backup_kind
     end
-    private :add_rotator
+    private :add_backup_kind
     
-    def son= rotator
-        add_rotator :son, rotator 
+    def son= backup_kind
+        add_backup_kind :son, backup_kind 
     end
     
     def son
-        @rotators[:son]
+        @backup_kinds[:son]
     end
     
-    def father= rotator
-        add_rotator :father, rotator 
+    def father= backup_kind
+        add_backup_kind :father, backup_kind 
     end
     
     def father
-        @rotators[:father]
+        @backup_kinds[:father]
     end
     
-    def grandfather= rotator
-        add_rotator :grandfather, rotator 
+    def grandfather= backup_kind
+        add_backup_kind :grandfather, backup_kind 
     end
 
     def grandfather
-        @rotators[:grandfather]
+        @backup_kinds[:grandfather]
     end
     
     def creates_a? backup_name
-        @rotators[backup_name].creates_a?(backup_name)
+        @backup_kinds[backup_name].creates_a?(backup_name)
     end
 
-    def working_archive_file(archive_name)
-        "#{archive_name}_#{Date.today.strftime('%Y-%m-%d')}.tgz"
-    end
-
-    def deliver(archive_name, directory)
-        if @rotators.empty?
-            raise DeliveryException.new("no rotators defined, don't know how to deliver")
+    def deliver(archive)
+        if @backup_kinds.empty?
+            raise DeliveryException.new("no backup_kinds defined, don't know how to deliver")
         end
         
-        grandfather.execute(working_archive_file(archive_name), archive_name, directory) or
-                father.execute(working_archive_file(archive_name), archive_name, directory) or
-                        son.execute(working_archive_file(archive_name), archive_name, directory) 
+        grandfather.execute(archive) or father.execute(archive) or son.execute(archive) 
 
     end
 
 end
 
 require 'date'
-class Rotator
+class BackupKind
     attr_reader :kind
     attr_writer :name
     attr_accessor :number_to_keep
    
     def self.null_object
-        NullRotator.new
+        NullBackupKind.new
     end
      
     def initialize(kind, name, shell  = ShellRunner.new)
@@ -84,9 +78,9 @@ class Rotator
         @name || @kind 
     end
     
-    def should_be_used?(archive_name, destination, date = Date.today)
+    def should_be_used?(archive, date = Date.today)
         return true unless @should_run_on_each
-        return true unless @shell.exists?("#{destination}/#{base_name(archive_name)}*")
+        return true unless archive.exists?(name)
         @should_run_on_each.include?(date)
     end
     
@@ -98,36 +92,19 @@ class Rotator
         @should_run_on_each.include? date
     end
     
-    def destination_archive_file(archive_name)
-        [base_name(archive_name), Date.today.strftime('%Y-%m-%d')].join('_') + '.tgz'
-    end
-    
-    def execute(working_archive_file, archive_name, destination, date = Date.today)
-        return false unless should_be_used?(archive_name, destination, date)
-        @shell.move(working_archive_file, "#{destination}/#{destination_archive_file(archive_name)}")
-        if (number_to_keep > 0)
-            filelist = @shell.ordered_list("#{destination}/#{base_name(archive_name)}*") 
-            while filelist.size > number_to_keep
-                @shell.rm filelist.shift 
-            end
-        end
+    def execute(archive, date = Date.today)
+        return false unless should_be_used?(archive, date)
+        archive.create(name)
+        archive.remove_exceeding(name, number_to_keep) if (number_to_keep > 0)
         return true
     end
 
-    def base_name(archive_name)
-        [archive_name, name].join('_')
-    end
-    private :base_name
         
-    class NullRotator < Rotator
+    class NullBackupKind < BackupKind
         def initialize
             super('null','null')
         end
-        
-        def should_be_used?(archive_name, destination)
-            false 
-        end
-        def execute(sourcefile, archive, destination)
+        def execute(archive)
             false
         end
     end
