@@ -1,7 +1,7 @@
 -----------------------------------------------------------------------------------------------------------
-Release:  10335-MysqlDumpAndCustomCommand
+Release:  10345-DeliveryRedesign
 Summary:  redesigned delivery
-          improbed 
+          fixed date related test issue
 
 r38 2010-08-27 fixed date related problem in simple_gfs_archive.recipe
 r37 2010-08-21 added test feature
