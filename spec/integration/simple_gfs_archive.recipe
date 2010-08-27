@@ -6,14 +6,21 @@ backup do
         destination output_file('destination') 
     end
     
+    
     delivery do
+        
+        never = Object.new
+        def never.include? date
+            false
+        end 
+        
         son 'daily' do
         end
         father 'weekly' do
-            on_each last_friday
+            on_each never
         end
         grandfather 'yearly' do
-            on_each first_monday_in_january
+            on_each never
         end
     end
 end

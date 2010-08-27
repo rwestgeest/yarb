@@ -122,7 +122,7 @@ describe BackupKind do
                 archive.stub!(:exists?).with('son').and_return false
             end
             
-            it "sends the file to a rotated filename in the destination directory by default" do
+            it "sends the created archive to the destination" do
                 archive.should_receive(:create).with('son') 
                 backup_kind.execute(archive).should be_true
             end
@@ -142,7 +142,7 @@ describe BackupKind do
                     backup_kind.execute(archive, Date.parse("29-07-2010")).should be_false
                 end
                 
-                it "creates the archive if the date does matches the runt expression" do
+                it "creates the archive if the date does match the runt expression" do
                     archive.should_receive(:create).with('son')
                     backup_kind.execute(archive, Date.parse("30-07-2010")).should be_true
                 end

@@ -63,6 +63,7 @@ describe 'backups' do
         tar_list('simple_tar_daily').should == 'output tar not present'
 
         run_backup('simple_gfs_archive.recipe').should be_true, 'backup should be successful'
+        
         tar_list('simple_tar_yearly').should include 'mydir/file1' 
         tar_list('simple_tar_weekly').should include 'mydir/file1' 
         tar_list('simple_tar_daily').should include 'mydir/file1' 
