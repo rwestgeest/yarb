@@ -98,7 +98,6 @@ class BackupKind
         return true
     end
 
-        
     class NullBackupKind < BackupKind
         def initialize
             super('null','null')
