@@ -1,4 +1,11 @@
 -----------------------------------------------------------------------------------------------------------
+Release:  11117-MonthLookingLikeYearProblem
+Summary:  fixed problem that yearly backups where created every month
+
+r44 2011-03-19 fixed month look like year problem
+r43 2011-03-18 added some tests for first_sunday_in_jnauary
+
+-----------------------------------------------------------------------------------------------------------
 Release:  10345-DeliveryRedesign
 Summary:  redesigned delivery
           fixed date related test issue
