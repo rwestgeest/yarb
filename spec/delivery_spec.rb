@@ -87,10 +87,10 @@ end
 
 require 'date'
 require 'runt'
-include Runt
 
 describe BackupKind do
   attr_reader :backup_kind
+  include Runt
 
   before do
     @backup_kind = BackupKind.new('son',nil)
@@ -100,7 +100,7 @@ describe BackupKind do
     attr_reader :backup_kind, :archive
     before do
       @backup_kind = BackupKind.new('son', nil)
-      @archive = mock('archive')
+      @archive = mock('archive', :run_date => Date.today, :name => 'my_archive')
     end
 
     describe " - by default" do
@@ -140,30 +140,45 @@ describe BackupKind do
 
         it "creates no archive if the date does not match the runt expression" do
           archive.should_receive(:create).never
-          backup_kind.execute(archive, Date.parse("29-07-2010")).should be_false
+          archive.stub(:run_date).and_return Date.parse("29-07-2010")
+          backup_kind.execute(archive).should be_false
         end
 
         it "creates the archive if the date does match the runt expression" do
           archive.should_receive(:create).with('son')
-          backup_kind.execute(archive, Date.parse("30-07-2010")).should be_true
+          archive.stub(:run_date).and_return Date.parse("30-07-2010")
+          backup_kind.execute(archive).should be_true
         end
 
       end
+
       describe "- and it should happen on each first sunday in january (just an example)" do
         before do
           backup_kind.should_run_on_each first_sunday_in_january
         end
 
         it "creates the archive if the date does match the runt expression" do
-        archive.should_receive(:create).with('son')
-        backup_kind.execute(archive, Date.parse("02-01-2011")).should be_true
+          archive.should_receive(:create).with('son')
+          archive.stub(:run_date).and_return Date.parse("02-01-2011")
+          backup_kind.execute(archive).should be_true
         end
 
-        it "creates no archive if the date does not match the runt expression" do
-        archive.should_receive(:create).with('son').never
-        backup_kind.execute(archive, Date.parse("06-02-2011")).should be_false
-        backup_kind.execute(archive, Date.parse("06-03-2011")).should be_false
-        backup_kind.execute(archive, Date.parse("09-01-2011")).should be_false
+        it "creates no archive if the date is another sunday in january" do
+          archive.should_receive(:create).with('son').never
+          archive.stub(:run_date).and_return Date.parse("09-01-2011")
+          backup_kind.execute(archive).should be_false
+        end
+
+        it "creates no archive if the date is the first sunday in march" do
+          archive.should_receive(:create).with('son').never
+          archive.stub(:run_date).and_return Date.parse("06-03-2011")
+          backup_kind.execute(archive).should be_false
+        end
+
+        it "creates no archive if the date is another weekday in january" do
+          archive.should_receive(:create).with('son').never
+          archive.stub(:run_date).and_return Date.parse("09-01-2011")
+          backup_kind.execute(archive).should be_false
         end
       end
     end

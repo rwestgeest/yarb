@@ -27,11 +27,16 @@ def version
 end
 
 recipe_file = nil
+run_on = nil
 parser = OptionParser.new do |opts|
     opts.banner = USAGE_MESSAGE
     opts.on("-h", '--help', "show this message") { usage(parser) }
     opts.on("-v", '--version', "show version") { version }
-    opts.on("-t", '--test', "don't run - show what you'd do") { @test = true }
+    opts.on("-t", '--test [date]', "don't run - show what you'd do with an optional simulation date") do |date| 
+      p run_on
+      @test = true 
+      run_on = Date.parse(date) if date
+    end
     opts.on("-r", '--recipe file', "use recipe (mandatory) - see doc/example.recipe for an example") { |file| recipe_file = file }
 end 
     
@@ -42,7 +47,10 @@ shell= @test && ShellLogger.new || ShellRunner.new
 begin
 recipe = BackupConfiguration.from_file(recipe_file, shell)  
 backup = recipe.backup
-backup.run
+
+run_on = run_on || Date.today
+backup.run run_on 
+
 rescue RuntimeError => e
     $stderr.puts e
     exit 255

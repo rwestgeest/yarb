@@ -1,22 +1,29 @@
 require 'spec_helper'
 require 'fileutils'
 require 'backup_configuration'
+require 'date_fmt'
 include FileUtils
 
 describe 'backups' do
-
-  def tar_list(name)
-    expected_tar = output_file "destination/#{name}_#{Date.today.strftime('%Y-%m-%d')}.tgz"
+  include DateFmt
+  def tar_list(name, run_on = Date.today)
+    expected_tar = output_file "destination/#{name}_#{run_on.strftime('%Y-%m-%d')}.tgz"
     return 'output tar not present' unless File.exists?(expected_tar)
     `tar tvzf #{expected_tar}`
   end
 
   def run_backup recipe_file
-    system "#{File.join(PROJECT_ROOT, 'bin', 'yarb')} --recipe #{File.join(File.dirname(__FILE__),recipe_file)} >> /dev/null"
+    command = "#{File.join(PROJECT_ROOT, 'bin', 'yarb')} "
+    command << "--recipe #{File.join(File.dirname(__FILE__),recipe_file)} "
+    command << ">> /dev/null"
+    system command
   end
 
-  def test_backup recipe_file
-    `#{File.join(PROJECT_ROOT, 'bin', 'yarb')} --test --recipe #{File.join(File.dirname(__FILE__),recipe_file)}`
+  def test_backup recipe_file, run_date = nil
+    command = "#{File.join(PROJECT_ROOT, 'bin', 'yarb')} --test "
+    command << "#{run_date} " if run_date
+    command << "--recipe #{File.join(File.dirname(__FILE__),recipe_file)}"
+    `#{command}`
   end
 
   before do
@@ -38,10 +45,17 @@ describe 'backups' do
     tar_list('simple_tar_daily').should include 'mydir/file2'
   end
 
-  it "can show what it does" do
+  it "can show what it does in test mode" do
     result = test_backup 'simple_directory_archive.recipe'
     result.should include('tar cvzf simple_tar_daily')
     result.should include('moving simple_tar_daily')
+  end
+
+  it "can specify a date for testing" do
+    the_date = Date.parse('19-03-2010')
+    result = test_backup 'simple_directory_archive.recipe', the_date.strftime('%d-%m-%Y')
+    result.should include("tar cvzf simple_tar_daily_#{the_date.as_string}")
+    result.should include("moving simple_tar_daily_#{the_date.as_string}")
   end
 
   it "can make two simple directory backups" do
@@ -93,7 +107,7 @@ describe 'backups' do
     end
   end
 
-  describe 'with cusom command' do
+  describe 'with custom command' do
     it "can include the result of a custom command in the archive" do
       result = run_backup 'directory_with_custom_command_archive.recipe'
       result.should be_true, 'backup should be succesful'
@@ -102,4 +116,26 @@ describe 'backups' do
     end
   end
 
+  describe 'fairly standard gfs specification year month day' do
+    let(:recipe) { 'typical_gfs.recipe' }
+
+    it "runs yearly backup on first sunday in year" do
+      the_date = Date.parse("02-01-2011")
+      result = test_backup recipe, the_date.strftime('%d-%m-%Y')
+      result.should include("tar cvzf simple_tar_yearly_#{the_date.as_string}")
+    end
+    it "runs monthly backup on first sunday of any other month" do
+      the_date = Date.parse("06-03-2011")
+      create_output_file('destination/simple_tar_yearly_2011-01-02.tgz')
+      result = test_backup recipe, the_date.strftime('%d-%m-%Y')
+      result.should include("tar cvzf simple_tar_monthly_#{the_date.as_string}")
+    end
+    it "runs daily backup on other days" do
+      the_date = Date.parse("07-03-2011")
+      create_output_file('destination/simple_tar_yearly_2011-01-02.tgz')
+      create_output_file('destination/simple_tar_monthly_2011-03-06.tgz')
+      result = test_backup recipe, the_date.strftime('%d-%m-%Y')
+      result.should include("tar cvzf simple_tar_daily_#{the_date.as_string}")
+    end
+  end
 end

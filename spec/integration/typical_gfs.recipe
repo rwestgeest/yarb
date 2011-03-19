@@ -1,0 +1,29 @@
+$: << 'spec'
+require 'spec_helper'
+backup do
+  archive 'simple_tar' do
+      file input_file('mydir')
+      destination output_file('destination') 
+  end
+  # a grandfather, father, son delivery strategy
+  # this delivery strategy is shared used for all archives
+  # all deliveries are to the local file system in the archives 'destination' (see above)
+  delivery do    
+    # generates a an archive with name '<archive name>_daily_<date>.tgz'
+    son 'daily' do
+      keep 31
+    end
+    
+    # generates a an archive with name '<archive name>_monthly_<date>.tgz'
+    father 'monthly' do
+      on_each first_sunday
+      keep 12
+    end
+    
+    # generates a an archive with name '<archive name>_yearly_<date>.tgz'
+    grandfather 'yearly' do
+      on_each first_sunday_in_january
+      keep 5
+    end
+  end
+end

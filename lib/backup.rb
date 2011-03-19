@@ -27,10 +27,10 @@ class Backup
         @archives << archive
     end
     
-    def run
+    def run(date_override = Date.today)
         begin 
             @working_dir.in do 
-                @archives.each { |archive| archive.run }
+                @archives.each { |archive| archive.run(date_override) }
                 return 0
             end
         rescue DeliveryException => e

@@ -66,7 +66,6 @@ class BackupDsl < Dsl
 end
     
 require 'delivery'
-require 'runt'
 class DeliveryDsl < Dsl
     def self.configure(delivery, &configuration_block)
         self.new('delivery', delivery).configure(&configuration_block)
@@ -94,6 +93,7 @@ class DeliveryDsl < Dsl
     end
 end
 
+require 'runt_ext'
 class BackupKindDsl < Dsl
     include Runt
     def self.configure(backup_kind, &configuration_block) 

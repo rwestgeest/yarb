@@ -61,3 +61,8 @@ def create_input_file file
     system 'touch ' + input_file(file)
 end
 
+def create_output_file file
+    mkdir_p File.dirname(output_file(file))
+    system 'touch ' + output_file(file)
+end
+

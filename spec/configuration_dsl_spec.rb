@@ -189,7 +189,6 @@ describe DeliveryDsl do
 end
 
 describe BackupKindDsl do
-    include Runt
     attr_reader :backup_kind
     before do
         @configuration_item = @backup_kind = BackupKind.new(:son, 'son')
@@ -233,6 +232,7 @@ describe BackupKindDsl do
         BackupKindDsl.configure(backup_kind) do
             on_each first_monday_in_january
         end
+        backup_kind.runs_on_each.to_s.should == 'every January 0th through January 0th and 1st Monday of the month'
         backup_kind.should_run_on?(Date.parse("05-01-2009")).should be_true
         backup_kind.should_run_on?(Date.parse("02-02-2009")).should be_false
     end
